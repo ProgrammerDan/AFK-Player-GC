@@ -1,7 +1,10 @@
 package com.github.Kraken3.AFKPGC;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -69,11 +72,25 @@ public class ConfigurationReader {
 		int wlen = warnings.size();
 		Warning[] wa = new Warning[wlen];
 		for(int i = 0; i < wlen; i++) wa[i] = warnings.get(i);
-		
-		
+
+		Set<UUID> immuneAccounts = new HashSet<UUID>();
+		for (String account_id : conf.getStringList("immune_accounts")) {
+			try {
+				UUID uuid = UUID.fromString(account_id);
+				// TODO: When Bukkit gets their act together with the account
+				//  ID migrations and makes Server.getOfflinePlayer(UUID)
+				//  reasonably efficient, validate the account ID is a real
+				//  player on this server.
+				immuneAccounts.add(uuid);
+			} catch (Exception ex) {
+				AFKPGC.logger.info("Invalid UUID in immune_accounts: " + account_id);
+			}
+		}
+
 		Kicker.message_on_kick = conf.getString("kick_message");
 		Kicker.warnings = wa;
 		Kicker.kickThresholds = kickThresholds;		
+		AFKPGC.immuneAccounts = immuneAccounts;
 		
 		return true;
 	}
