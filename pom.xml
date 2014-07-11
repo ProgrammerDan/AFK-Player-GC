@@ -40,17 +40,16 @@
   <dependencies>
     <dependency>
       <groupId>org.bukkit</groupId>
-      <artifactId>craftbukkit</artifactId>
-      <version>1.7.2</version>
+      <artifactId>bukkit</artifactId>
+      <version>1.7.2-R0.3</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
   
   <repositories>
     <repository>
-      <id>lib</id>
-      <name>lib</name>
-      <url>${project.baseUri}lib</url>
+      <id>bukkit-repo</id>
+      <url>http://repo.bukkit.org/content/groups/public/</url>
     </repository>
   </repositories>
 </project>
