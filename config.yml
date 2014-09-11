@@ -53,3 +53,7 @@ Str13: "Error: Inconsistency in number of players detected"
 Str14: "%s kicked for being AFK for %s"
 Str15: "AFKPGC version: %s, the plugin is %s"
 Str16: "AFKPGC is alive"
+
+
+Comment: Add player Account IDs (UUID) here to exempt them from the AFK checks
+immune_accounts: []

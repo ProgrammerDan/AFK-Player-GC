@@ -1,7 +1,7 @@
 name: AFKPGC
 main: com.github.Kraken3.AFKPGC.AFKPGC
 author: Kraken3
-version: 1.2.2
+version: 1.2.3
 commands:
    afkpgc:
       description: AFK Player GC - mod for kicking inactive players

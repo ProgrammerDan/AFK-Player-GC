@@ -12,7 +12,8 @@ public class AFKPGC extends JavaPlugin {
 	public static Logger logger;
 	public static JavaPlugin plugin;
 	public static boolean enabled = true;
-	
+	public static Set<UUID> immuneAccounts;
+
 	@Override
 	public void onEnable(){ 
 		//setting a couple of static fields so that they are available elsewhere
@@ -176,8 +177,12 @@ public class AFKPGC extends JavaPlugin {
 		if(LastActivity.lastActivities.containsKey(name))LastActivity.lastActivities.remove(name);	
 	}
 	
-	public static void addPlayer(String name){
-		if(name == null) return;
+	public static LastActivity addPlayer(Player p){
+		if(p == null) return null;
+		if (AFKPGC.immuneAccounts.contains(p.getUniqueId())) {
+			return null;
+		}
+		String name = p.getName();
 		
 		LastActivity la;		
 		if(LastActivity.lastActivities.containsKey(name)){
@@ -185,11 +190,11 @@ public class AFKPGC extends JavaPlugin {
 		} else {
 			la = new LastActivity();
 			LastActivity.lastActivities.put(name,la);			
+			la.playerName = name;
+			la.timeOflastKickerPass = LastActivity.currentTime;
 		}				
-		
-		la.timeOfLastActivity = System.currentTimeMillis();
-		la.timeOflastKickerPass = System.currentTimeMillis();
-		la.playerName = name;
+		la.timeOfLastActivity = LastActivity.currentTime;
+		return la;
 	}
 	
 
@@ -216,6 +221,7 @@ class LastActivity{
 	//let's be polite.. I strongly dislike bukkit.. onPlayerQuitEvent doesn't trigger on all
 	//player log off events for some reason. This causes LastActivity.lastActivities to contain more players
 	//than there are playing on the server. FixInconsitencies() fixes this problem.
+	//It's ok. We are in agreement with our hatred.
 	static public void FixInconsitencies(){
 		Map<String, LastActivity> lastActivities = LastActivity.lastActivities;	
 		Player[] players = AFKPGC.plugin.getServer().getOnlinePlayers();
@@ -223,8 +229,14 @@ class LastActivity{
 		
 		for(Player p:players) {
 			String name = p.getName();
-			if(!lastActivities.containsKey(name)) AFKPGC.addPlayer(p.getName());	
-			playersTree.add(name);
+			LastActivity la = lastActivities.get(name);
+			if(la == null) {
+				la = AFKPGC.addPlayer(p);
+			}
+			if(la != null) {
+				la.timeOflastKickerPass = LastActivity.currentTime;
+				playersTree.add(name);
+			}
 		}				
 		
 		String[] keySet = lastActivities.keySet().toArray(new String[0]);		   
