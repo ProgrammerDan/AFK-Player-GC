@@ -2,6 +2,7 @@ package com.github.Kraken3.AFKPGC;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.bukkit.entity.Player;
 
@@ -11,12 +12,12 @@ class Kicker implements Runnable {
 	public static Warning[] warnings;
 	public static String message_on_kick;	
 	
-	public static List<String> amIStillAlivePlayer;  // sends a message to this player
+	public static List<UUID> amIStillAlivePlayer;  // sends a message to this player
 
 	public void run() {				
 			if(amIStillAlivePlayer != null){			
 					Player p;					
-					for(String i:amIStillAlivePlayer){
+					for(UUID i:amIStillAlivePlayer){
 						if(i != null){
 							if((p = AFKPGC.plugin.getServer().getPlayer(i)) != null) Message.send(p,16);
 						} else {
@@ -43,9 +44,9 @@ class Kicker implements Runnable {
 		   if(threshold == 0) return;
 		
 		   LastActivity.currentTime = System.currentTimeMillis();
-		   Map<String, LastActivity> lastActivities = LastActivity.lastActivities;				   
-		   String[] keySet = lastActivities.keySet().toArray(new String[0]);		   
-		   for(String i:keySet){
+		   Map<UUID, LastActivity> lastActivities = LastActivity.lastActivities;				   
+		   UUID[] keySet = lastActivities.keySet().toArray(new UUID[0]);		   
+		   for(UUID i:keySet){
 			   if(!lastActivities.containsKey(i)) continue;
 			   LastActivity la = lastActivities.get(i);			  
 			   long time = LastActivity.currentTime - la.timeOfLastActivity;

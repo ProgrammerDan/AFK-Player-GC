@@ -121,8 +121,8 @@ public class AFKPGC extends JavaPlugin {
 	
 	private boolean onCommandInfo(Player player){		 
 		Message.send(player, 15, plugin.getDescription().getVersion(), AFKPGC.enabled ? "enabled" : "disabled");
-		if(Kicker.amIStillAlivePlayer == null) Kicker.amIStillAlivePlayer = new ArrayList<String>();
-		if(player != null)	Kicker.amIStillAlivePlayer.add(player.getName());
+		if(Kicker.amIStillAlivePlayer == null) Kicker.amIStillAlivePlayer = new ArrayList<UUID>();
+		if(player != null)	Kicker.amIStillAlivePlayer.add(player.getUniqueId());
 		else Kicker.amIStillAlivePlayer.add(null);
 		return true;
 	}
@@ -139,8 +139,8 @@ public class AFKPGC extends JavaPlugin {
 		Message.send(player, 8, p);
 		
 		ArrayList<LastActivity> las = new ArrayList<LastActivity>();
-		Set<String> set = LastActivity.lastActivities.keySet();
-		for(String i:set) las.add(LastActivity.lastActivities.get(i));	
+		Set<UUID> set = LastActivity.lastActivities.keySet();
+		for(UUID i:set) las.add(LastActivity.lastActivities.get(i));	
 		int laslen = las.size();
 		Collections.sort(las, new Comparator<LastActivity>(){						
 			public int compare(LastActivity arg0, LastActivity arg1) {							
@@ -173,8 +173,8 @@ public class AFKPGC extends JavaPlugin {
 	}
 	
 	
-	public static void removerPlayer(String name){
-		if(LastActivity.lastActivities.containsKey(name))LastActivity.lastActivities.remove(name);	
+	public static void removerPlayer(UUID uuid){
+		if(LastActivity.lastActivities.containsKey(uuid))LastActivity.lastActivities.remove(uuid);	
 	}
 	
 	public static LastActivity addPlayer(Player p){
@@ -182,15 +182,15 @@ public class AFKPGC extends JavaPlugin {
 		if (AFKPGC.immuneAccounts.contains(p.getUniqueId())) {
 			return null;
 		}
-		String name = p.getName();
+		UUID uuid = p.getUniqueId();
 		
 		LastActivity la;		
-		if(LastActivity.lastActivities.containsKey(name)){
-			la = LastActivity.lastActivities.get(name);			
+		if(LastActivity.lastActivities.containsKey(uuid)){
+			la = LastActivity.lastActivities.get(uuid);			
 		} else {
 			la = new LastActivity();
-			LastActivity.lastActivities.put(name,la);			
-			la.playerName = name;
+			LastActivity.lastActivities.put(uuid,la);			
+			la.playerName = uuid;
 			la.timeOflastKickerPass = LastActivity.currentTime;
 		}				
 		la.timeOfLastActivity = LastActivity.currentTime;
@@ -212,35 +212,35 @@ class Warning{
 
 
 class LastActivity{
-	public static Map<String, LastActivity> lastActivities = new TreeMap<String, LastActivity>();
+	public static Map<UUID, LastActivity> lastActivities = new TreeMap<UUID, LastActivity>();
 	public static long currentTime; 	//OCD compels me to save a few System.currentTimeMillis() calls..	
 	public long timeOfLastActivity;
 	public long timeOflastKickerPass; //time of the last Kicker.run call, relevant for warnings
-	public String playerName; //useful only in onCommandList
+	public UUID playerName; //useful only in onCommandList
 	
 	//let's be polite.. I strongly dislike bukkit.. onPlayerQuitEvent doesn't trigger on all
 	//player log off events for some reason. This causes LastActivity.lastActivities to contain more players
 	//than there are playing on the server. FixInconsitencies() fixes this problem.
 	//It's ok. We are in agreement with our hatred.
 	static public void FixInconsitencies(){
-		Map<String, LastActivity> lastActivities = LastActivity.lastActivities;	
+		Map<UUID, LastActivity> lastActivities = LastActivity.lastActivities;	
 		Player[] players = AFKPGC.plugin.getServer().getOnlinePlayers();
-		TreeSet<String> playersTree = new TreeSet<String>();		
+		TreeSet<UUID> playersTree = new TreeSet<UUID>();		
 		
 		for(Player p:players) {
-			String name = p.getName();
-			LastActivity la = lastActivities.get(name);
+			UUID uuid = p.getUniqueId();
+			LastActivity la = lastActivities.get(uuid);
 			if(la == null) {
 				la = AFKPGC.addPlayer(p);
 			}
 			if(la != null) {
 				la.timeOflastKickerPass = LastActivity.currentTime;
-				playersTree.add(name);
+				playersTree.add(uuid);
 			}
 		}				
 		
-		String[] keySet = lastActivities.keySet().toArray(new String[0]);		   
-		for(String i:keySet){
+		UUID[] keySet = lastActivities.keySet().toArray(new UUID[0]);		   
+		for(UUID i:keySet){
 			if(!playersTree.contains(i)) AFKPGC.removerPlayer(i);			   
 		}		
 		

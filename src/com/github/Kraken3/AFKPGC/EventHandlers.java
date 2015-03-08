@@ -13,12 +13,12 @@ class EventHandlers implements Listener {
 	
 	@EventHandler
 	public void PlayerKickEvent(PlayerQuitEvent event) {	
-		AFKPGC.removerPlayer(event.getPlayer().getName());
+		AFKPGC.removerPlayer(event.getPlayer().getUniqueId());
 	}
 	
 	@EventHandler
 	public void onPlayerQuitEvent(PlayerQuitEvent event) {	
-		AFKPGC.removerPlayer(event.getPlayer().getName());
+		AFKPGC.removerPlayer(event.getPlayer().getUniqueId());
 	}	
 		
 	
