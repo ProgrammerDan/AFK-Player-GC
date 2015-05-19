@@ -224,7 +224,12 @@ class LastActivity{
 	//It's ok. We are in agreement with our hatred.
 	static public void FixInconsitencies(){
 		Map<UUID, LastActivity> lastActivities = LastActivity.lastActivities;	
-		Player[] players = AFKPGC.plugin.getServer().getOnlinePlayers();
+		Player[] players = new Player[AFKPGC.plugin.getServer().getOnlinePlayers().size()];
+		int x = 0;
+		for (Player p: AFKPGC.plugin.getServer().getOnlinePlayers()){
+			players[x] = p;
+			x++;
+		}
 		TreeSet<UUID> playersTree = new TreeSet<UUID>();		
 		
 		for(Player p:players) {
