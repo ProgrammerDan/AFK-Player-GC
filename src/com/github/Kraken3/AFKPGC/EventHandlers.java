@@ -46,10 +46,6 @@ class EventHandlers implements Listener {
 		registerActivity(event.getPlayer());
 	}	
 	@EventHandler
-	public void onPlayerChatEvent(PlayerChatEvent event) {
-		registerActivity(event.getPlayer());
-	}
-	@EventHandler
 	public void onPlayerInteractEvent(PlayerInteractEvent event) {
 		registerActivity(event.getPlayer());
 	}

@@ -1,15 +1,20 @@
 package com.github.Kraken3.AFKPGC;
 
+
+
 import java.util.Map;
+import java.util.LinkedList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
+
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.Location;
 
 class LastActivity{
 	public static Map<UUID, LastActivity> lastActivities = new TreeMap<UUID, LastActivity>();
 	public static long currentTime; 	//OCD compels me to save a few System.currentTimeMillis() calls..	
+	public LinkedList <Location> loggedLocations;
 	public long timeOfLastActivity;
 	public long timeOflastKickerPass; //time of the last Kicker.run call, relevant for warnings
 	public UUID playerName; //useful only in onCommandList
@@ -45,5 +50,16 @@ class LastActivity{
 			if(!playersTree.contains(i)) AFKPGC.removerPlayer(i);			   
 		}		
 		
+	}
+	public int calculateMovementradius() {
+		Location current=loggedLocations.getLast();
+		int distance=0;
+		for(int i=0;i<loggedLocations.size()-1;i++) {
+			int possibleNewDistance=(int)loggedLocations.get(i).distance(current);
+			if (possibleNewDistance>distance) {
+				distance=possibleNewDistance;			
+			}
+		}
+		return distance;
 	}
 }

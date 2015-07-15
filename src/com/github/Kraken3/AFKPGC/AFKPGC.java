@@ -35,6 +35,8 @@ public class AFKPGC extends JavaPlugin {
 			   }
 		}, 0, 1L);	
 		
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, new BotDetector(), 0, locationLoggingIntervall); //TODO add locationLoggingIntervall to config and ConfigReader
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, new TpsReader(), 0, 400L);  //update TPS every 20 seconds
 		//Because bukkit..
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			   public void run() {		

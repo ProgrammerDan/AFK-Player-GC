@@ -44,6 +44,8 @@ class Kicker implements Runnable {
 		   if(threshold == 0) return;
 		
 		   LastActivity.currentTime = System.currentTimeMillis();
+		   
+		   
 		   Map<UUID, LastActivity> lastActivities = LastActivity.lastActivities;				   
 		   UUID[] keySet = lastActivities.keySet().toArray(new UUID[0]);		   
 		   for(UUID i:keySet){
