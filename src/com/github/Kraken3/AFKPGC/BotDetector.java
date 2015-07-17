@@ -17,7 +17,7 @@ public class BotDetector implements Runnable {
 	static float currentTPS = 20;
 	static float acceptableTPS;
 	static float criticalTPSChange;
-	static int frequency; // how often this runs in ticks
+	static long frequency; // how often this runs in ticks
 	float lastRoundTPS;
 	UUID topSuspect = null;
 	String topSuspectName = ""; // needs to be stored additionally,
