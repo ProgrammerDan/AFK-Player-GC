@@ -37,7 +37,6 @@ public class BotDetector implements Runnable {
 
 	static BanList banList = AFKPGC.plugin.getServer().getBanList(
 			BanList.Type.NAME); // ban after names not ips
-	public static Map<UUID, List<Location>> playerLocations = new TreeMap<UUID, List<Location>>();
 
 	public void run() {
 		if (!AFKPGC.enabled) {
