@@ -17,7 +17,7 @@ public class BotDetector implements Runnable {
 	static float currentTPS = 20;
 	static float acceptableTPS;
 	static float criticalTPSChange;
-	static float frequency;
+	static int frequency; // how often this runs in ticks
 	float lastRoundTPS;
 	UUID topSuspect = null;
 	String topSuspectName = ""; // needs to be stored additionally,
@@ -36,7 +36,7 @@ public class BotDetector implements Runnable {
 	// reasons
 
 	static BanList banList = AFKPGC.plugin.getServer().getBanList(
-			BanList.Type.NAME);
+			BanList.Type.NAME); // ban after names not ips
 	public static Map<UUID, List<Location>> playerLocations = new TreeMap<UUID, List<Location>>();
 
 	public void run() {
@@ -73,6 +73,7 @@ public class BotDetector implements Runnable {
 						if (itWasntMeISwear < smallestMovedDistance) {
 							smallestMovedDistance = itWasntMeISwear;
 							Player dirtyLiar = Bukkit.getPlayer(playerUUID);
+
 							topSuspect = playerUUID;
 							topSuspectsLocation = dirtyLiar.getLocation();
 							topSuspectName = dirtyLiar.getName();
@@ -84,36 +85,17 @@ public class BotDetector implements Runnable {
 			}
 			if (topSuspect != null) {
 				Date currentDate = new Date();
-				long bantime = (long) (currentTPS / 20 * frequency * 1000); // needs
-																			// to
-																			// be
-				// calculated
-				// this way,
-				// because
-				// the ban
-				// time is
-				// based on
-				// real time
-				// and the
-				// next
-				// check how
-				// much the
-				// tick
-				// improved
-				// is based
-				// on the
-				// current
-				// tick
-
+				long bantime = (long) (frequency / currentTPS * 1000);
+				// Because the ban time is based on real time and the next run
+				// of this method is based on the tick, the ban time needs to be
+				// adjusted to the tick. The long form of this would be:
+				// (20/currentTPS) * (frequency/20) * 1000
+				// The time is in ms
 				banList.addBan(topSuspectName,
 						"You were suspected to cause lag and banned for "
 								+ bantime / 1000 + " seconds", new Date(
-								currentDate.getTime() + bantime), null); // ban
-				// the
-				// player
-				// for
-				// a
-				// minute
+								currentDate.getTime() + bantime), null);
+				// ban the player for ~ a minute
 
 			}
 			if (lastRoundSuspect != null) {
@@ -136,8 +118,8 @@ public class BotDetector implements Runnable {
 								lastRoundSuspectName,
 								"Kicking you resulted in a noticeable TPS improvement, so you were banned until the TPS goes back to normal values.",
 								new Date(
-										currentDate.getTime() + 12 * 3600 * 1000),
-								null); // 12h
+										currentDate.getTime() + 6 * 3600 * 1000),
+								null); // 6h ban
 						AFKPGC.logger
 								.log(AFKPGC.logger.getLevel(),
 										"The player "
@@ -148,7 +130,7 @@ public class BotDetector implements Runnable {
 												+ " at the location "
 												+ lastRoundSuspectsLocation
 														.toString());
-						// ban that also gets lifted once the TPS is back up
+
 					} else {
 						suspectedBotters.add(lastRoundSuspect);
 						AFKPGC.logger
@@ -171,23 +153,10 @@ public class BotDetector implements Runnable {
 			lastRoundSuspectsLocation = topSuspectsLocation; // as preparation
 																// for the next
 																// run;
-		} else {
+		} else { // TPS is high enough
 			if (bannedPlayers.size() != 0) {
-				freeEveryone();
-				// if the tps is high
-				// enough again,
-				// everyone gets
-				// unbanned;
-				// the
-				// whole banning
-				// needs some
-				// testing so it
-				// doesn't
-				// accidentally
-				// unban players who
-				// were banned for
-				// other reasons
-
+				freeEveryone(); // not everyone, but everyone banned by this
+								// plugin
 			}
 		}
 

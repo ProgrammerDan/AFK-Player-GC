@@ -35,7 +35,7 @@ public class AFKPGC extends JavaPlugin {
 			   }
 		}, 0, 1L);	
 		
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, new BotDetector(), 0, 1200L);
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, new BotDetector(), 0, BotDetector.frequency);
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new TpsReader(), 0, TpsReader.updatingFrequency);  //update TPS
 		//Because bukkit..
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
