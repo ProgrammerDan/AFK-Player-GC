@@ -2,9 +2,10 @@ package com.github.Kraken3.AFKPGC;
 
 public class TpsReader implements Runnable { // There has to be a way to read
 												// this right from Spigot, but I
-												// couldnt find anything about
-												// it
-	static float TPS=20f;
+												// couldnt find anything that
+												// worked
+	static float TPS = 20f;
+	static long updatingFrequency;
 	boolean started = false;
 	int counter = 0;
 	long starttime;
@@ -22,6 +23,7 @@ public class TpsReader implements Runnable { // There has to be a way to read
 			counter++;
 		}
 	}
+
 	public static float getTPS() {
 		return TPS;
 	}

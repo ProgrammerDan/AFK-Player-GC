@@ -35,8 +35,8 @@ public class AFKPGC extends JavaPlugin {
 			   }
 		}, 0, 1L);	
 		
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, new BotDetector(), 0, locationLoggingIntervall); //TODO add locationLoggingIntervall to config and ConfigReader
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, new TpsReader(), 0, 400L);  //update TPS every 20 seconds
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, new BotDetector(), 0, 1200L);
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, new TpsReader(), 0, TpsReader.updatingFrequency);  //update TPS
 		//Because bukkit..
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			   public void run() {		
@@ -49,6 +49,7 @@ public class AFKPGC extends JavaPlugin {
 	 
 	@Override
 	public void onDisable(){ 
+		BotDetector.freeEveryone();  //players wont get freed if the server crashed, should the bans of this plugin also be stored in an external file?
 		Message.send(2);	 
 	}
 	
@@ -201,16 +202,3 @@ public class AFKPGC extends JavaPlugin {
 	
 
 }
-
-class Warning{
-	public int time;	
-	public String message;	
-	public Warning (int time, String message){ 
-		this.time = time;
-		this.message = message;
-	}
-}
-
-
-
-

@@ -13,7 +13,21 @@ kick_thresholds:
   - When 2  to 50  players online kick after 240 seconds
   - When 1  to 1  players online kick after 3600 seconds  
   
+Comment: Once the TPS get below acceptable_TPS, the BotDetector starts culling potential lag causer.
+acceptable_TPS: 15
+
+Comment: critical_TPS_Change is the minimal change in TPS that needs to happen after kicking a player, 
+Comment: so he is marked as someone causing lag and his name is logged.
+critical_TPS_Change: 0.3
+
+Comment: kicking_frequency is how often a player gets kicked and the TPS change monitored afterwards 
+Comment: in ticks
+kicking_frequency: 1200
+
+Comment: tps_updating is how often the internal TPS value of AFKPGC is updated in ticks
+tps_upating: 20
   
+
 Comment: warnings filed reads the first number, the rest is text to be sent to a player
   
 warnings:
