@@ -5,7 +5,6 @@ public class TpsReader implements Runnable { // There has to be a way to read
 												// couldnt find anything that
 												// worked
 	static float TPS = 20f;
-	static long updatingFrequency;
 	boolean started = false;
 	int counter = 0;
 	long starttime;

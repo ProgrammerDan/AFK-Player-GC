@@ -84,65 +84,71 @@ public class BotDetector implements Runnable {
 				}
 			}
 			if (topSuspect != null) {
-				Date currentDate = new Date();
-				long bantime = (long) (frequency / currentTPS * 1000);
-				// Because the ban time is based on real time and the next run
-				// of this method is based on the tick, the ban time needs to be
-				// adjusted to the tick. The long form of this would be:
-				// (20/currentTPS) * (frequency/20) * 1000
-				// The time is in ms
-				banList.addBan(topSuspectName,
-						"You were suspected to cause lag and banned for "
-								+ bantime / 1000 + " seconds", new Date(
-								currentDate.getTime() + bantime), null);
-				// ban the player for ~ a minute
-
+				if (!AFKPGC.immuneAccounts.contains(topSuspect)) {
+					Date currentDate = new Date();
+					long bantime = (long) (frequency / currentTPS * 1000);
+					// Because the ban time is based on real time and the next
+					// run
+					// of this method is based on the tick, the ban time needs
+					// to be
+					// adjusted to the tick. The long form of this would be:
+					// (20/currentTPS) * (frequency/20) * 1000
+					// The time is in ms
+					banList.addBan(topSuspectName,
+							"You were suspected to cause lag and banned for "
+									+ bantime / 1000 + " seconds", new Date(
+									currentDate.getTime() + bantime), null);
+					// ban the player for ~ a minute
+				}
 			}
 			if (lastRoundSuspect != null) {
-				if (currentTPS - lastRoundTPS > criticalTPSChange) { // value
-																		// needs
-																		// to be
-					// configured, that was
-					// just the first thing
-					// that came to mind.
-					// This can be
-					// relatively sensitive,
-					// because it will only
-					// ban players for a
-					// longer period of
-					// time, if it catches
-					// them twice here
-					Date currentDate = new Date();
-					if (suspectedBotters.contains(lastRoundSuspect)) {
-						banList.addBan(
-								lastRoundSuspectName,
-								"Kicking you resulted in a noticeable TPS improvement, so you were banned until the TPS goes back to normal values.",
-								new Date(
-										currentDate.getTime() + 6 * 3600 * 1000),
-								null); // 6h ban
-						AFKPGC.logger
-								.log(AFKPGC.logger.getLevel(),
-										"The player "
-												+ lastRoundSuspectName
-												+ " causes lag and is a repeated offender, kicking him resulted in a TPS improvement of "
-												+ String.valueOf(currentTPS
-														- lastRoundTPS)
-												+ " at the location "
-												+ lastRoundSuspectsLocation
-														.toString());
+				if (!AFKPGC.immuneAccounts.contains(lastRoundSuspect)) {
+					if (currentTPS - lastRoundTPS > criticalTPSChange) { // value
+																			// needs
+																			// to
+																			// be
+						// configured, that was
+						// just the first thing
+						// that came to mind.
+						// This can be
+						// relatively sensitive,
+						// because it will only
+						// ban players for a
+						// longer period of
+						// time, if it catches
+						// them twice here
+						Date currentDate = new Date();
+						if (suspectedBotters.contains(lastRoundSuspect)) {
+							banList.addBan(
+									lastRoundSuspectName,
+									"Kicking you resulted in a noticeable TPS improvement, so you were banned until the TPS goes back to normal values.",
+									new Date(
+											currentDate.getTime() + 6 * 3600 * 1000),
+									null); // 6h ban
+							AFKPGC.logger
+									.log(AFKPGC.logger.getLevel(),
+											"The player "
+													+ lastRoundSuspectName
+													+ " causes lag and is a repeated offender, kicking him resulted in a TPS improvement of "
+													+ String.valueOf(currentTPS
+															- lastRoundTPS)
+													+ " at the location "
+													+ lastRoundSuspectsLocation
+															.toString());
 
-					} else {
-						suspectedBotters.add(lastRoundSuspect);
-						AFKPGC.logger
-								.log(AFKPGC.logger.getLevel(),
-										"The player "
-												+ lastRoundSuspectName
-												+ " is suspected to cause lag, kicking him resulted in a TPS improvement of "
-												+ String.valueOf(currentTPS
-														- lastRoundTPS)
-												+ " at the location "
-												+ lastRoundSuspectsLocation
-														.toString());
+						} else {
+							suspectedBotters.add(lastRoundSuspect);
+							AFKPGC.logger
+									.log(AFKPGC.logger.getLevel(),
+											"The player "
+													+ lastRoundSuspectName
+													+ " is suspected to cause lag, kicking him resulted in a TPS improvement of "
+													+ String.valueOf(currentTPS
+															- lastRoundTPS)
+													+ " at the location "
+													+ lastRoundSuspectsLocation
+															.toString());
+						}
 					}
 				}
 			}

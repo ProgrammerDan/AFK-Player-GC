@@ -23,9 +23,6 @@ critical_TPS_Change: 0.3
 Comment: kicking_frequency is how often a player gets kicked and the TPS change monitored afterwards 
 Comment: in ticks
 kicking_frequency: 1200
-
-Comment: tps_updating is how often the internal TPS value of AFKPGC is updated in ticks
-tps_upating: 20
   
 
 Comment: warnings filed reads the first number, the rest is text to be sent to a player
