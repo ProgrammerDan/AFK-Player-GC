@@ -6,9 +6,9 @@
   <groupId>com.github.Kraken3</groupId>
   <artifactId>AFKPGC</artifactId>
   <packaging>jar</packaging>
-  <version>1.2.4-SNAPSHOT</version>
+  <version>1.3.0</version>
   <name>AFKPGC</name>
-  <url>https://github.com/erocs/AFKPGC</url>
+  <url>https://github.com/civcraft/AFKPGC</url>
   
   <build>
     <pluginManagement>
@@ -33,6 +33,7 @@
         <includes>
           <include>*.yml</include>
         </includes>
+        <filtering>true</filtering>
       </resource>
     </resources>
   </build>
@@ -49,8 +50,8 @@
   <dependencies>
     <dependency>
       <groupId>org.spigotmc</groupId>
-      <artifactId>spigot-api</artifactId>
-      <version>1.8.7-R0.1-SNAPSHOT</version>
+      <artifactId>spigot1.8.7</artifactId>
+      <version>1.8.7</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
