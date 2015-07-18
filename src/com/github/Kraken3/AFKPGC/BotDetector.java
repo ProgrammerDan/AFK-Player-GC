@@ -1,11 +1,9 @@
 package com.github.Kraken3.AFKPGC;
 
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.BanList;
@@ -13,7 +11,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+/*
+ * @author Maxopoly
+ */
 public class BotDetector implements Runnable {
+	static boolean longBans;
 	static float currentTPS = 20;
 	static float acceptableTPS;
 	static float criticalTPSChange;
@@ -46,10 +48,9 @@ public class BotDetector implements Runnable {
 		Map<UUID, LastActivity> lastActivities = LastActivity.lastActivities;
 		if (currentTPS < acceptableTPS) {
 			int smallestMovedDistance = 1024;
-			Iterator<Map.Entry<UUID, LastActivity>> entries = lastActivities
-					.entrySet().iterator();
-			while (entries.hasNext()) {
-				Map.Entry<UUID, LastActivity> entry = entries.next();
+			Set<Map.Entry<UUID, LastActivity>> entries = lastActivities
+					.entrySet();
+			for (Map.Entry<UUID, LastActivity> entry : entries) {
 				UUID playerUUID = entry.getKey();
 				if (lastActivities.containsKey(playerUUID)) { // according to
 																// the author of
@@ -118,12 +119,14 @@ public class BotDetector implements Runnable {
 						// them twice here
 						Date currentDate = new Date();
 						if (suspectedBotters.contains(lastRoundSuspect)) {
-							banList.addBan(
-									lastRoundSuspectName,
-									"Kicking you resulted in a noticeable TPS improvement, so you were banned until the TPS goes back to normal values.",
-									new Date(
-											currentDate.getTime() + 6 * 3600 * 1000),
-									null); // 6h ban
+							if (longBans) {
+								banList.addBan(
+										lastRoundSuspectName,
+										"Kicking you resulted in a noticeable TPS improvement, so you were banned until the TPS goes back to normal values.",
+										new Date(
+												currentDate.getTime() + 6 * 3600 * 1000),
+										null); // 6h ban
+							}
 							AFKPGC.logger
 									.log(AFKPGC.logger.getLevel(),
 											"The player "

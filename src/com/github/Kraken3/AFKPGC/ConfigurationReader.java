@@ -94,6 +94,7 @@ public class ConfigurationReader {
 		BotDetector.acceptableTPS = conf.getInt("acceptable_TPS");
 		BotDetector.criticalTPSChange=(float)conf.getDouble("critical_TPS_Change");
 		BotDetector.frequency=conf.getInt("kicking_frequency");
+		BotDetector.longBans=conf.getBoolean("long_bans");
 		Kicker.message_on_kick = conf.getString("kick_message");
 		Kicker.warnings = wa;
 		Kicker.kickThresholds = kickThresholds;
