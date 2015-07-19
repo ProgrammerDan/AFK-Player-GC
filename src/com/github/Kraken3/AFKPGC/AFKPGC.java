@@ -1,5 +1,6 @@
 package com.github.Kraken3.AFKPGC;
 
+import java.io.File;
 import java.util.logging.Logger;
 import java.util.*;
 
@@ -22,7 +23,8 @@ public class AFKPGC extends JavaPlugin {
 		logger = getLogger();
 		plugin = this;
 		commandHandler = new CommandHandler(this);
-
+		BotDetector.banfile=new File(plugin.getDataFolder().getAbsolutePath()+"/banlist.txt");
+		BotDetector.parseBanlist();
 		// Reads Config.yml - false as an answer indicated unrecoverable error
 		AFKPGC.enabled = ConfigurationReader.readConfig();
 		if (!AFKPGC.enabled)

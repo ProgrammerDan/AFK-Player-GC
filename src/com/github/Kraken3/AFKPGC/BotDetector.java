@@ -1,5 +1,11 @@
 package com.github.Kraken3.AFKPGC;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Map;
@@ -11,6 +17,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+
 /*
  * @author Maxopoly
  */
@@ -20,6 +27,7 @@ public class BotDetector implements Runnable {
 	public static float acceptableTPS;
 	public static float criticalTPSChange;
 	public static long frequency; // how often this runs in ticks
+	public static File banfile;
 	float lastRoundTPS;
 	UUID topSuspect = null;
 	String topSuspectName = ""; // needs to be stored additionally,
@@ -127,6 +135,7 @@ public class BotDetector implements Runnable {
 												currentDate.getTime() + 6 * 3600 * 1000),
 										null); // 6h ban
 								bannedPlayers.add(lastRoundSuspectName);
+								addToBanfile(lastRoundSuspectName);
 								suspectedBotters.remove(lastRoundSuspectName); 
 							}
 							AFKPGC.logger
@@ -177,6 +186,42 @@ public class BotDetector implements Runnable {
 			banList.pardon(bannedPlayers.get(i));
 		}
 		bannedPlayers.clear();
+		banfile.delete();
+	}
+	public void addToBanfile(String name) {
+		 try {
+	            FileWriter fileWriter =
+	                new FileWriter(banfile);
+
+	            BufferedWriter bufferedWriter =
+	                new BufferedWriter(fileWriter);
+	            bufferedWriter.write(name);
+	            bufferedWriter.newLine();
+	            bufferedWriter.close();
+	        }
+	        catch(IOException e) {
+	           AFKPGC.logger.log(AFKPGC.logger.getLevel(), "Error while trying to add "+name+" to the banned players file");
+	        }
+	}
+	public static void parseBanlist() {
+		if (banfile==null &&!banfile.exists()) {
+			return;
+		}
+		 String line = null;
+	        try {
+	            FileReader fileReader = 
+	                new FileReader(banfile);
+	            BufferedReader bufferedReader = 
+	                new BufferedReader(fileReader);
+
+	            while((line = bufferedReader.readLine()) != null) {
+	                bannedPlayers.add(line);
+	            }    
+	            bufferedReader.close();            
+	        }
+	        catch(IOException ex) {
+	        	AFKPGC.logger.log(AFKPGC.logger.getLevel(), "Error while trying to parse the banned players file");
+	        }
 	}
 
 }
