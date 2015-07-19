@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.Location;
 
 
-class LastActivity{
+public class LastActivity{
 	public static Map<UUID, LastActivity> lastActivities = new TreeMap<UUID, LastActivity>();
 	public static long currentTime; 	//OCD compels me to save a few System.currentTimeMillis() calls..	
 	public LinkedList <Location> loggedLocations;

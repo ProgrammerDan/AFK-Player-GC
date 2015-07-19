@@ -6,8 +6,10 @@ import java.util.UUID;
 
 import org.bukkit.entity.Player;
 
+import com.github.Kraken3.AFKPGC.commands.CommandHandler;
 
-class Kicker implements Runnable {
+
+public class Kicker implements Runnable {
 	public static int[] kickThresholds;
 	public static Warning[] warnings;
 	public static String message_on_kick;	
@@ -19,9 +21,11 @@ class Kicker implements Runnable {
 					Player p;					
 					for(UUID i:amIStillAlivePlayer){
 						if(i != null){
-							if((p = AFKPGC.plugin.getServer().getPlayer(i)) != null) Message.send(p,16);
+							if((p = AFKPGC.plugin.getServer().getPlayer(i)) != null) {
+								p.sendMessage("AFKPGC is alive");
+							}
 						} else {
-							Message.send(16);
+							AFKPGC.logger.log(AFKPGC.logger.getLevel(),"AFKPGC is alive");
 						}
 					}
 					amIStillAlivePlayer = null;
@@ -73,7 +77,8 @@ class Kicker implements Runnable {
 					   p.kickPlayer(message_on_kick);					   
 					   AFKPGC.removerPlayer(i);						   
 					   int t = (int)((LastActivity.currentTime - la.timeOfLastActivity)/1000);
-					   Message.send(14, i, AFKPGC.readableTimeSpan(t)); 
+					   
+					   AFKPGC.logger.log(AFKPGC.logger.getLevel(),i+" kicked for being AFK for "+CommandHandler.readableTimeSpan(t));
 				   }	
 			   }
 			   

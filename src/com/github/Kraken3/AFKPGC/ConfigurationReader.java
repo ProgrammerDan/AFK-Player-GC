@@ -29,14 +29,17 @@ public class ConfigurationReader {
 			parseNaturals(s, nums);
 			int min = nums[0], max = nums[1], t = nums[2];
 			if (min > max || min < 1 || max < 1 || t < 0) {
-				Message.error(11, s);
+				AFKPGC.logger.log(AFKPGC.logger.getLevel(),
+						"Configuration file error: " + s);
 				return false;
 			}
 
 			for (int i = min; i <= max; i++) {
 				if (i <= max_players) {
 					if (kickThresholds[i - 1] != -1)
-						Message.warning(10, s);
+						AFKPGC.logger.log(AFKPGC.logger.getLevel(),
+								"Previously defined threshold getting redefined in: "
+										+ s);
 					kickThresholds[i - 1] = t;
 				}
 			}
@@ -45,7 +48,10 @@ public class ConfigurationReader {
 		boolean foundEmptyThreshold = false;
 		for (int i = 0; i < max_players; i++) {
 			if (kickThresholds[i] == -1) {
-				Message.error(12, i + 1);
+				AFKPGC.logger
+						.log(AFKPGC.logger.getLevel(),
+								"Configuration file incomplete - plugin doesn't know when to kick players when there are "
+										+ i + 1 + " players online");
 				foundEmptyThreshold = true;
 			}
 		}
@@ -92,9 +98,10 @@ public class ConfigurationReader {
 			}
 		}
 		BotDetector.acceptableTPS = conf.getInt("acceptable_TPS");
-		BotDetector.criticalTPSChange=(float)conf.getDouble("critical_TPS_Change");
-		BotDetector.frequency=conf.getInt("kicking_frequency");
-		BotDetector.longBans=conf.getBoolean("long_bans");
+		BotDetector.criticalTPSChange = (float) conf
+				.getDouble("critical_TPS_Change");
+		BotDetector.frequency = conf.getInt("kicking_frequency");
+		BotDetector.longBans = conf.getBoolean("long_bans");
 		Kicker.message_on_kick = conf.getString("kick_message");
 		Kicker.warnings = wa;
 		Kicker.kickThresholds = kickThresholds;

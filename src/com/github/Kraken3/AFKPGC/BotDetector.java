@@ -15,11 +15,11 @@ import org.bukkit.entity.Player;
  * @author Maxopoly
  */
 public class BotDetector implements Runnable {
-	static boolean longBans;
-	static float currentTPS = 20;
-	static float acceptableTPS;
-	static float criticalTPSChange;
-	static long frequency; // how often this runs in ticks
+	public static boolean longBans;
+	public static float currentTPS = 20;
+	public static float acceptableTPS;
+	public static float criticalTPSChange;
+	public static long frequency; // how often this runs in ticks
 	float lastRoundTPS;
 	UUID topSuspect = null;
 	String topSuspectName = ""; // needs to be stored additionally,
@@ -31,8 +31,8 @@ public class BotDetector implements Runnable {
 	UUID lastRoundSuspect = null;
 	String lastRoundSuspectName = "";
 	Location lastRoundSuspectsLocation = null;
-	static LinkedList<UUID> suspectedBotters = new LinkedList<UUID>();
-	static LinkedList<String> bannedPlayers = new LinkedList<String>();
+	public static LinkedList<String> suspectedBotters = new LinkedList<String>();
+	public static LinkedList<String> bannedPlayers = new LinkedList<String>();
 	// this is needed as a separated list, so we know the difference between
 	// players who were banned by AFKPGC and players who were banned for other
 	// reasons
@@ -118,7 +118,7 @@ public class BotDetector implements Runnable {
 						// time, if it catches
 						// them twice here
 						Date currentDate = new Date();
-						if (suspectedBotters.contains(lastRoundSuspect)) {
+						if (suspectedBotters.contains(lastRoundSuspectName)) {
 							if (longBans) {
 								banList.addBan(
 										lastRoundSuspectName,
@@ -126,6 +126,8 @@ public class BotDetector implements Runnable {
 										new Date(
 												currentDate.getTime() + 6 * 3600 * 1000),
 										null); // 6h ban
+								bannedPlayers.add(lastRoundSuspectName);
+								suspectedBotters.remove(lastRoundSuspectName); 
 							}
 							AFKPGC.logger
 									.log(AFKPGC.logger.getLevel(),
@@ -139,7 +141,7 @@ public class BotDetector implements Runnable {
 															.toString());
 
 						} else {
-							suspectedBotters.add(lastRoundSuspect);
+							suspectedBotters.add(lastRoundSuspectName);
 							AFKPGC.logger
 									.log(AFKPGC.logger.getLevel(),
 											"The player "
@@ -174,6 +176,7 @@ public class BotDetector implements Runnable {
 		for (int i = 0; i < bannedPlayers.size(); i++) {
 			banList.pardon(bannedPlayers.get(i));
 		}
+		bannedPlayers.clear();
 	}
 
 }
