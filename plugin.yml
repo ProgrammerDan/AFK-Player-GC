@@ -1,7 +1,8 @@
-name: AFKPGC
+name: ${project.name}
 main: com.github.Kraken3.AFKPGC.AFKPGC
-author: Kraken3/Maxopoly
-version: 1.3.0
+author: Kraken3
+authors: [Maxopoly]
+version: ${project.version}
 commands:
    afkpgc:
       description: AFK Player GC - mod for kicking inactive players and players causing lag
