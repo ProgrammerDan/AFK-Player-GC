@@ -12,8 +12,8 @@ import org.bukkit.command.CommandSender;
 import com.github.Kraken3.AFKPGC.AFKPGC;
 import com.github.Kraken3.AFKPGC.LastActivity;
 
-public class list extends AbstractCommand{
-	public list(AFKPGC instance) {
+public class ListPlayers extends AbstractCommand{
+	public ListPlayers(AFKPGC instance) {
 		super(instance,"list");
 	}
 	@Override

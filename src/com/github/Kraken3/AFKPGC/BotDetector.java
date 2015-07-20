@@ -17,7 +17,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-
 /*
  * @author Maxopoly
  */
@@ -130,19 +129,22 @@ public class BotDetector implements Runnable {
 							if (longBans) {
 								banList.addBan(
 										lastRoundSuspectName,
-										"Kicking you resulted in a noticeable TPS improvement, so you were banned until the TPS goes back to normal values.",
+										"Kicking you resulted in a noticeable TPS im"
+												+ "provement, so you were banned until the TPS goes"
+												+ " back to normal values.",
 										new Date(
 												currentDate.getTime() + 6 * 3600 * 1000),
 										null); // 6h ban
 								bannedPlayers.add(lastRoundSuspectName);
 								addToBanfile(lastRoundSuspectName);
-								suspectedBotters.remove(lastRoundSuspectName); 
+								suspectedBotters.remove(lastRoundSuspectName);
 							}
 							AFKPGC.logger
 									.log(AFKPGC.logger.getLevel(),
 											"The player "
 													+ lastRoundSuspectName
-													+ " causes lag and is a repeated offender, kicking him resulted in a TPS improvement of "
+													+ " causes lag and is a repeated offender,"
+													+ " kicking him resulted in a TPS improvement of "
 													+ String.valueOf(currentTPS
 															- lastRoundTPS)
 													+ " at the location "
@@ -155,7 +157,8 @@ public class BotDetector implements Runnable {
 									.log(AFKPGC.logger.getLevel(),
 											"The player "
 													+ lastRoundSuspectName
-													+ " is suspected to cause lag, kicking him resulted in a TPS improvement of "
+													+ " is suspected to cause lag,"
+													+ " kicking him resulted in a TPS improvement of "
 													+ String.valueOf(currentTPS
 															- lastRoundTPS)
 													+ " at the location "
@@ -188,40 +191,39 @@ public class BotDetector implements Runnable {
 		bannedPlayers.clear();
 		banfile.delete();
 	}
-	public void addToBanfile(String name) {
-		 try {
-	            FileWriter fileWriter =
-	                new FileWriter(banfile);
 
-	            BufferedWriter bufferedWriter =
-	                new BufferedWriter(fileWriter);
-	            bufferedWriter.write(name);
-	            bufferedWriter.newLine();
-	            bufferedWriter.close();
-	        }
-	        catch(IOException e) {
-	           AFKPGC.logger.log(AFKPGC.logger.getLevel(), "Error while trying to add "+name+" to the banned players file");
-	        }
+	public void addToBanfile(String name) {
+		try {
+			FileWriter fileWriter = new FileWriter(banfile);
+
+			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+			bufferedWriter.write(name);
+			bufferedWriter.newLine();
+			bufferedWriter.close();
+		} catch (IOException e) {
+			AFKPGC.logger.log(AFKPGC.logger.getLevel(),
+					"Error while trying to add " + name
+							+ " to the banned players file");
+		}
 	}
+
 	public static void parseBanlist() {
-		if (banfile==null &&!banfile.exists()) {
+		if (banfile == null && !banfile.exists()) {
 			return;
 		}
-		 String line = null;
-	        try {
-	            FileReader fileReader = 
-	                new FileReader(banfile);
-	            BufferedReader bufferedReader = 
-	                new BufferedReader(fileReader);
+		String line = null;
+		try {
+			FileReader fileReader = new FileReader(banfile);
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
 
-	            while((line = bufferedReader.readLine()) != null) {
-	                bannedPlayers.add(line);
-	            }    
-	            bufferedReader.close();            
-	        }
-	        catch(IOException ex) {
-	        	AFKPGC.logger.log(AFKPGC.logger.getLevel(), "Error while trying to parse the banned players file");
-	        }
+			while ((line = bufferedReader.readLine()) != null) {
+				bannedPlayers.add(line);
+			}
+			bufferedReader.close();
+		} catch (IOException ex) {
+			AFKPGC.logger.log(AFKPGC.logger.getLevel(),
+					"Error while trying to parse the banned players file");
+		}
 	}
 
 }

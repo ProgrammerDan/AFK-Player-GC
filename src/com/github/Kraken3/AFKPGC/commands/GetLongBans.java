@@ -7,9 +7,9 @@ import org.bukkit.command.CommandSender;
 import com.github.Kraken3.AFKPGC.AFKPGC;
 import com.github.Kraken3.AFKPGC.BotDetector;
 
-public class getLongBans extends AbstractCommand {
+public class GetLongBans extends AbstractCommand {
 
-	public getLongBans(AFKPGC instance) {
+	public GetLongBans(AFKPGC instance) {
 		super(instance, "getLongBans");
 	}
 

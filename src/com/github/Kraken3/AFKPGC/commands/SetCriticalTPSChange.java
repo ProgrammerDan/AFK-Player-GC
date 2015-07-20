@@ -7,19 +7,19 @@ import org.bukkit.command.CommandSender;
 import com.github.Kraken3.AFKPGC.AFKPGC;
 import com.github.Kraken3.AFKPGC.BotDetector;
 
-public class setAcceptableTPS extends AbstractCommand {
+public class SetCriticalTPSChange extends AbstractCommand {
 
-	public setAcceptableTPS(AFKPGC instance) {
-		super(instance, "setacceptabletps");
+	public SetCriticalTPSChange(AFKPGC instance) {
+		super(instance, "setcriticaltpschange");
 	}
 
 	@Override
 	public boolean onCommand(CommandSender sender, List<String> args) {
 		if (args.size() == 1) {
 			try {
-				int a = Integer.parseInt(args.get(0));
-				BotDetector.acceptableTPS = a;
-				sender.sendMessage("Set acceptable TPS to "+a);
+				double a = Double.parseDouble(args.get(0));
+				BotDetector.criticalTPSChange = (float)a;
+				sender.sendMessage("Set critical TPS change to "+a);
 				return true;
 			} catch (NumberFormatException e) {
 				return false;

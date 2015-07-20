@@ -7,9 +7,9 @@ import org.bukkit.command.CommandSender;
 import com.github.Kraken3.AFKPGC.AFKPGC;
 import com.github.Kraken3.AFKPGC.BotDetector;
 
-public class getSuspectedPlayers extends AbstractCommand {
+public class GetSuspectedPlayers extends AbstractCommand {
 
-	public getSuspectedPlayers(AFKPGC instance) {
+	public GetSuspectedPlayers(AFKPGC instance) {
 		super(instance, "getSuspectedPlayers");
 	}
 

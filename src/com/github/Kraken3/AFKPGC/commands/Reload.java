@@ -7,8 +7,8 @@ import org.bukkit.command.CommandSender;
 import com.github.Kraken3.AFKPGC.AFKPGC;
 import com.github.Kraken3.AFKPGC.ConfigurationReader;
 
-public class reload extends AbstractCommand{
-	public reload(AFKPGC instance) {
+public class Reload extends AbstractCommand{
+	public Reload(AFKPGC instance) {
 		super(instance, "reload");
 	}
 

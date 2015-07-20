@@ -7,8 +7,8 @@ import org.bukkit.command.CommandSender;
 import com.github.Kraken3.AFKPGC.AFKPGC;
 import com.github.Kraken3.AFKPGC.Kicker;
 
-public class times extends AbstractCommand {
-	public times(AFKPGC instance) {
+public class Times extends AbstractCommand {
+	public Times(AFKPGC instance) {
 		super(instance, "times");
 	}
 

@@ -6,8 +6,8 @@ import org.bukkit.command.CommandSender;
 
 import com.github.Kraken3.AFKPGC.AFKPGC;
 
-public class info extends AbstractCommand{
-	public info(AFKPGC instance) {
+public class Info extends AbstractCommand{
+	public Info(AFKPGC instance) {
 		super(instance,"info");
 	}
 	@Override
