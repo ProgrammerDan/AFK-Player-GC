@@ -10,7 +10,7 @@ import com.github.Kraken3.AFKPGC.BotDetector;
 public class GetSuspectedPlayers extends AbstractCommand {
 
 	public GetSuspectedPlayers(AFKPGC instance) {
-		super(instance, "getSuspectedPlayers");
+		super(instance, "getsuspectedplayers");
 	}
 
 	@Override

@@ -10,7 +10,7 @@ import com.github.Kraken3.AFKPGC.BotDetector;
 public class GetLongBans extends AbstractCommand {
 
 	public GetLongBans(AFKPGC instance) {
-		super(instance, "getLongBans");
+		super(instance, "getlongbans");
 	}
 
 	@Override

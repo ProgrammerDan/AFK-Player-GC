@@ -10,7 +10,7 @@ import com.github.Kraken3.AFKPGC.BotDetector;
 public class GetAcceptableTPS extends AbstractCommand {
 
 	public GetAcceptableTPS(AFKPGC instance) {
-		super(instance, "getAcceptableTPS");
+		super(instance, "getacceptabletps");
 	}
 
 	@Override
