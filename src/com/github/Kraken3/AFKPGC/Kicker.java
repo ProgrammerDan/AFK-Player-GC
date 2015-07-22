@@ -25,7 +25,7 @@ public class Kicker implements Runnable {
 								p.sendMessage("AFKPGC is alive");
 							}
 						} else {
-							AFKPGC.logger.log(AFKPGC.logger.getLevel(),"AFKPGC is alive");
+							AFKPGC.logger.finest("AFKPGC is alive");
 						}
 					}
 					amIStillAlivePlayer = null;
@@ -78,7 +78,7 @@ public class Kicker implements Runnable {
 					   AFKPGC.removerPlayer(i);						   
 					   int t = (int)((LastActivity.currentTime - la.timeOfLastActivity)/1000);
 					   
-					   AFKPGC.logger.log(AFKPGC.logger.getLevel(),i+" kicked for being AFK for "+CommandHandler.readableTimeSpan(t));
+					   AFKPGC.logger.info(i+" kicked for being AFK for "+CommandHandler.readableTimeSpan(t));
 				   }	
 			   }
 			   

@@ -1,33 +1,32 @@
 configuration_file_version: 1
 
-Comment: default values might be a bit crazy.. They are intended for testing. Change them.
+# Default values might be a bit crazy.. They are intended for testing. Change them.
 
-
-Comment: kick_thresholds field ignores non-numerical characters and only reads three numbers separated, 
-Comment: non-numericals are there only to make configuration file more readable.
-Comment: Use 0 as an amount of seconds when you don't want to kick people.
+# kick_thresholds field ignores non-numerical characters and only reads three numbers separated, 
+#   non-numericals are there only to make configuration file more readable.
+#   Use 0 as an amount of seconds when you don't want to kick people.
 
 kick_thresholds:
-  - When 81 to 100 players online kick after 60 seconds
+  - When 81 to 500 players online kick after 60 seconds
   - When 51 to 80  players online kick after 120 seconds
   - When 2  to 50  players online kick after 240 seconds
   - When 1  to 1  players online kick after 3600 seconds  
   
-Comment: Once the TPS get below acceptable_TPS, the BotDetector starts culling potential lag causer.
+# Once the TPS get below acceptable_TPS, the BotDetector starts culling potential lag causer.
 acceptable_TPS: 15
 
-Comment: critical_TPS_Change is the minimal change in TPS that needs to happen after kicking a player, 
-Comment: so he is marked as someone causing lag and his name is logged.
+# critical_TPS_Change is the minimal change in TPS that needs to happen after kicking a player, 
+#   so he is marked as someone causing lag and his name is logged.
 critical_TPS_Change: 0.3
 
-Comment: kicking_frequency is how often a player gets kicked and the TPS change monitored afterwards 
-Comment: in ticks
+# kicking_frequency is how often a player gets kicked and the TPS change monitored afterwards 
+#   in ticks
 kicking_frequency: 1200
 
-Comment: Whether players get banned for a long time/ until the tick is high again
+# Whether players get banned for a long time/ until the tick is high again
 long_bans: false
 
-Comment: warnings filed reads the first number, the rest is text to be sent to a player
+# warnings field reads the first number, the rest is text to be sent to a player
   
 warnings:
   - 1 §4AFK Plugin - You'll be kicked in 1 second
@@ -43,11 +42,11 @@ warnings:
   - 3600 §4AFK Plugin - You'll be kicked in 1 hour
   
   
-Comment: Yay, rainbows! :)  
+# Yay, rainbows! :)  
 kick_message: §cYou §6were §ekicked §adue §9to in§5activity
 
 
-Comment: Various strings. 
+# Various strings. 
 
 Str0: "Pluging is not running"
 Str1: "AFK Player Garbage Collector has been enabled"
@@ -68,5 +67,5 @@ Str15: "AFKPGC version: %s, the plugin is %s"
 Str16: "AFKPGC is alive"
 
 
-Comment: Add player Account IDs (UUID) here to exempt them from the AFK checks
+# Add player Account IDs (UUID) here to exempt them from the AFK checks
 immune_accounts: []

@@ -139,9 +139,7 @@ public class BotDetector implements Runnable {
 								addToBanfile(lastRoundSuspectName);
 								suspectedBotters.remove(lastRoundSuspectName);
 							}
-							AFKPGC.logger
-									.log(AFKPGC.logger.getLevel(),
-											"The player "
+							AFKPGC.logger.info("The player "
 													+ lastRoundSuspectName
 													+ " causes lag and is a repeated offender,"
 													+ " kicking him resulted in a TPS improvement of "
@@ -153,9 +151,7 @@ public class BotDetector implements Runnable {
 
 						} else {
 							suspectedBotters.add(lastRoundSuspectName);
-							AFKPGC.logger
-									.log(AFKPGC.logger.getLevel(),
-											"The player "
+							AFKPGC.logger.info( "The player "
 													+ lastRoundSuspectName
 													+ " is suspected to cause lag,"
 													+ " kicking him resulted in a TPS improvement of "
@@ -201,8 +197,7 @@ public class BotDetector implements Runnable {
 			bufferedWriter.newLine();
 			bufferedWriter.close();
 		} catch (IOException e) {
-			AFKPGC.logger.log(AFKPGC.logger.getLevel(),
-					"Error while trying to add " + name
+			AFKPGC.logger.warning("Error while trying to add " + name
 							+ " to the banned players file");
 		}
 	}
@@ -221,8 +216,7 @@ public class BotDetector implements Runnable {
 			}
 			bufferedReader.close();
 		} catch (IOException ex) {
-			AFKPGC.logger.log(AFKPGC.logger.getLevel(),
-					"Error while trying to parse the banned players file");
+			AFKPGC.logger.warning("Error while trying to parse the banned players file");
 		}
 	}
 
