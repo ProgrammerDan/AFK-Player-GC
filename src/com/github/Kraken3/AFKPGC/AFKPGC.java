@@ -28,7 +28,7 @@ public class AFKPGC extends JavaPlugin {
 		// Reads Config.yml - false as an answer indicated unrecoverable error
 		AFKPGC.enabled = ConfigurationReader.readConfig();
 		if (!AFKPGC.enabled)
-			logger.log(logger.getLevel(), "Plugin is not running");
+			logger.warning("Plugin is not running");
 
 		getServer().getPluginManager()
 				.registerEvents(new EventHandlers(), this);
@@ -57,7 +57,7 @@ public class AFKPGC extends JavaPlugin {
 					}
 				}, 0, 6000L);
 		
-		logger.log(logger.getLevel(), "AFK Player Garbage Collector has been enabled");
+		logger.info("AFK Player Garbage Collector has been enabled");
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class AFKPGC extends JavaPlugin {
 		BotDetector.freeEveryone(); // players wont get freed if the server
 									// crashed, should the bans of this plugin
 									// also be stored in an external file?
-		logger.log(logger.getLevel(), "AFK Player Garbage Collector has been disabled");
+		logger.info( "AFK Player Garbage Collector has been disabled");
 	}
 
 	public static void removerPlayer(UUID uuid) {
@@ -76,7 +76,7 @@ public class AFKPGC extends JavaPlugin {
 	public static LastActivity addPlayer(Player p) {
 		if (p == null)
 			return null;
-		if (AFKPGC.immuneAccounts.contains(p.getUniqueId())) {
+		if (AFKPGC.immuneAccounts != null && AFKPGC.immuneAccounts.contains(p.getUniqueId())) {
 			return null;
 		}
 		UUID uuid = p.getUniqueId();

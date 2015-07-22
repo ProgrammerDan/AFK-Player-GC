@@ -29,16 +29,14 @@ public class ConfigurationReader {
 			parseNaturals(s, nums);
 			int min = nums[0], max = nums[1], t = nums[2];
 			if (min > max || min < 1 || max < 1 || t < 0) {
-				AFKPGC.logger.log(AFKPGC.logger.getLevel(),
-						"Configuration file error: " + s);
+				AFKPGC.logger.warning("Configuration file error: " + s);
 				return false;
 			}
 
 			for (int i = min; i <= max; i++) {
 				if (i <= max_players) {
 					if (kickThresholds[i - 1] != -1)
-						AFKPGC.logger.log(AFKPGC.logger.getLevel(),
-								"Previously defined threshold getting redefined in: "
+						AFKPGC.logger.config("Previously defined threshold getting redefined in: "
 										+ s);
 					kickThresholds[i - 1] = t;
 				}
@@ -48,9 +46,7 @@ public class ConfigurationReader {
 		boolean foundEmptyThreshold = false;
 		for (int i = 0; i < max_players; i++) {
 			if (kickThresholds[i] == -1) {
-				AFKPGC.logger
-						.log(AFKPGC.logger.getLevel(),
-								"Configuration file incomplete - plugin doesn't know when to kick players when there are "
+				AFKPGC.logger.warning("Configuration file incomplete - plugin doesn't know when to kick players when there are "
 										+ i + 1 + " players online");
 				foundEmptyThreshold = true;
 			}
