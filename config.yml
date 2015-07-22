@@ -8,7 +8,7 @@ Comment: non-numericals are there only to make configuration file more readable.
 Comment: Use 0 as an amount of seconds when you don't want to kick people.
 
 kick_thresholds:
-  - When 81 to 100 players online kick after 60 seconds
+  - When 81 to 500 players online kick after 60 seconds
   - When 51 to 80  players online kick after 120 seconds
   - When 2  to 50  players online kick after 240 seconds
   - When 1  to 1  players online kick after 3600 seconds  
