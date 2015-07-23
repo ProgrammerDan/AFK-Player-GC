@@ -29,11 +29,10 @@ public class BotDetector implements Runnable {
 	public static File banfile;
 	float lastRoundTPS;
 	UUID topSuspect = null;
-	String topSuspectName = ""; // needs to be stored additionally,
-								// because retrieving the name off
-								// players after kicking them is only
-								// possible
-								// over deprecated/buggy methods
+	/* Needs to be stored additionally, because retrieving the name off
+	 * players after kicking them is only possible
+	 * over deprecated/buggy methods */
+	String topSuspectName = ""; 
 	Location topSuspectsLocation = null;
 	UUID lastRoundSuspect = null;
 	String lastRoundSuspectName = "";
@@ -59,21 +58,15 @@ public class BotDetector implements Runnable {
 					.entrySet();
 			for (Map.Entry<UUID, LastActivity> entry : entries) {
 				UUID playerUUID = entry.getKey();
-				if (lastActivities.containsKey(playerUUID)) { // according to
-																// the author of
-																// AFKGPC, there
-																// might be
-																// inconsistencies
-																// in this list,
-																// so this
-																// additional
-																// check is
-																// needed
+				/* according to the author of AFKGPC, there might be
+				 * inconsistencies in this list, so this additional
+				 * check is needed */
+				if (lastActivities.containsKey(playerUUID)) {
 					LastActivity la = entry.getValue();
 					la.loggedLocations.add(Bukkit.getPlayer(playerUUID)
 							.getLocation());
-					if (la.loggedLocations.size() >= 5) {
-						if (la.loggedLocations.size() > 5) {
+					if (la.loggedLocations.size() >= 10) {
+						if (la.loggedLocations.size() > 10) {
 							la.loggedLocations.removeFirst();
 						}
 						int itWasntMeISwear = la.calculateMovementradius();
@@ -94,13 +87,11 @@ public class BotDetector implements Runnable {
 				if (!AFKPGC.immuneAccounts.contains(topSuspect)) {
 					Date currentDate = new Date();
 					long bantime = (long) (frequency / currentTPS * 1000);
-					// Because the ban time is based on real time and the next
-					// run
-					// of this method is based on the tick, the ban time needs
-					// to be
-					// adjusted to the tick. The long form of this would be:
-					// (20/currentTPS) * (frequency/20) * 1000
-					// The time is in ms
+					/* Because the ban time is based on real time and the next run
+					 * of this method is based on the tick, the ban time needs to be
+					 * adjusted to the tick. The long form of this would be:
+					 * (20/currentTPS) * (frequency/20) * 1000
+					 * The time is in ms */
 					banList.addBan(topSuspectName,
 							"You were suspected to cause lag and banned for "
 									+ bantime / 1000 + " seconds", new Date(
@@ -110,20 +101,11 @@ public class BotDetector implements Runnable {
 			}
 			if (lastRoundSuspect != null) {
 				if (!AFKPGC.immuneAccounts.contains(lastRoundSuspect)) {
-					if (currentTPS - lastRoundTPS > criticalTPSChange) { // value
-																			// needs
-																			// to
-																			// be
-						// configured, that was
-						// just the first thing
-						// that came to mind.
-						// This can be
-						// relatively sensitive,
-						// because it will only
-						// ban players for a
-						// longer period of
-						// time, if it catches
-						// them twice here
+					if (currentTPS - lastRoundTPS > criticalTPSChange) {
+						/* value needs to be configured, that was just the first thing
+						 * that came to mind. This can be relatively sensitive,
+						 * because it will only ban players for a longer period of
+						 * time, if it catches them twice here */
 						Date currentDate = new Date();
 						if (suspectedBotters.contains(lastRoundSuspectName)) {
 							if (longBans) {
@@ -168,13 +150,11 @@ public class BotDetector implements Runnable {
 			lastRoundTPS = currentTPS;
 			lastRoundSuspect = topSuspect;
 			lastRoundSuspectName = topSuspectName;
-			lastRoundSuspectsLocation = topSuspectsLocation; // as preparation
-																// for the next
-																// run;
+			// as preparation for the next run:
+			lastRoundSuspectsLocation = topSuspectsLocation;
 		} else { // TPS is high enough
 			if (bannedPlayers.size() != 0) {
-				freeEveryone(); // not everyone, but everyone banned by this
-								// plugin
+				freeEveryone(); // not everyone, but everyone banned by this plugin
 			}
 		}
 
