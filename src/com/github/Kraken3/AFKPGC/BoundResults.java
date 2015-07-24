@@ -23,7 +23,7 @@ public class BoundResults {
 	public boolean getContained() {
 		return contained;
 	}
-	public boolean getContaindExcludeY() {
+	public boolean getContainedExcludeY() {
 		return containedExcludeY;
 	}
 	public boolean getVolumeSimilar() {
