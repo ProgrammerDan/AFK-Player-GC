@@ -1,3 +1,5 @@
+package com.github.Kraken3.AFKPGC;
+
 import java.util.UUID;
 import org.bukkit.Location;
 
@@ -44,9 +46,10 @@ public class Suspect implements Comparable<Suspect> {
 	 * @param suspect The Suspect to compare this against.
 	 * @return -1, 0, or 1 as this Suspect is UUID or Name ordered before, equal, or after suspect.
 	 */
-	int compareTo(Suspect suspect) {
+	@Override
+	public int compareTo(Suspect suspect) {
 		// if either name is null or the names are the same, compare on UUID.
-		if (this.name == null || suspect.getName() == null || this.name.equals(suspect.getName() ) {
+		if (this.name == null || suspect.getName() == null || this.name.equals(suspect.getName() ) ) {
 			return this.uuid.compareTo(suspect.getUUID());
 		} else { // if neither is null and the name is not equal, compare against name.
 			return this.name.compareTo(suspect.getName());
@@ -54,7 +57,7 @@ public class Suspect implements Comparable<Suspect> {
 	}
 	
 	@Override
-	boolean equals(Object o) {
+	public boolean equals(Object o) {
 		if (o instanceof Suspect) {
 			Suspect q = (Suspect) o;
 			return this.name.equals(q.getName()) && this.uuid.equals(q.getUUID());

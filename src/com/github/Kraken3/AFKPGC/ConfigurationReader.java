@@ -8,17 +8,22 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
+import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.EntityType;
 
 public class ConfigurationReader {
 	public static boolean readConfig() {
 
-		// TODO: Change so that the plugin copies jar internal default
-		// config.yml into FS only when one doesn't exist there;
+		// Note: savedefaultconfig only writes data if config.yml doesn't exist.
 		AFKPGC.plugin.saveDefaultConfig();
 		AFKPGC.plugin.reloadConfig();
 		FileConfiguration conf = AFKPGC.plugin.getConfig();
 
+		AFKPGC.debug = conf.getBoolean("debug", false);
+		AFKPGC.debug("Enabled");
+		
 		int max_players = AFKPGC.plugin.getServer().getMaxPlayers();
 		AFKPGC.logger.info("Server reports maximum of " + max_players + " players");
 
@@ -81,6 +86,118 @@ public class ConfigurationReader {
 			return false;
 		}
 
+		Set<UUID> immuneAccounts = new HashSet<UUID>();
+		for (String account_id : conf.getStringList("immune_accounts")) {
+			try {
+				UUID uuid = UUID.fromString(account_id);
+				// TODO: When Bukkit gets their act together with the account
+				// ID migrations and makes Server.getOfflinePlayer(UUID)
+				// reasonably efficient, validate the account ID is a real
+				// player on this server.
+				immuneAccounts.add(uuid);
+				AFKPGC.debug("Adding immune_account UUID: ", uuid);
+			} catch (Exception ex) {
+				AFKPGC.logger.info("Invalid UUID in immune_accounts: "
+						+ account_id);
+			}
+		}
+
+		ConfigurationSection bd = conf.getConfigurationSection("bot_detector");
+		//BotDetector
+		BotDetector.acceptableTPS = (float) bd.getDouble("acceptable_TPS");
+		AFKPGC.debug("Acceptable TPS: ", BotDetector.acceptableTPS);
+		BotDetector.criticalTPSChange = (float) bd.getDouble("critical_TPS_Change");
+		AFKPGC.debug("Critical TPS Change: ", BotDetector.criticalTPSChange);
+		BotDetector.frequency = bd.getInt("kicking_frequency");
+		AFKPGC.debug("Detector Frequency: ", BotDetector.frequency);
+		BotDetector.longBans = bd.getBoolean("long_bans");
+		AFKPGC.debug("Activate Long Bans: ", BotDetector.longBans);
+		BotDetector.maxLocations = bd.getInt("max_locations");
+		AFKPGC.debug("Max Locs to Track: ", BotDetector.maxLocations);
+		BotDetector.maxSuspects = bd.getInt("max_suspects");
+		AFKPGC.debug("Max Suspects: ", BotDetector.maxSuspects);
+		BotDetector.maxReprieve = bd.getInt("max_reprieve");
+		AFKPGC.debug("Max Reprieve Rounds: ", BotDetector.maxReprieve);
+		BotDetector.minBaselineMovement = bd.getInt("min_baseline");
+		AFKPGC.debug("Min Baseline Movement to not be a bot: ", BotDetector.minBaselineMovement);
+		BotDetector.longBan = bd.getLong("ban_length");
+		AFKPGC.debug("Long Ban Length: ", BotDetector.longBan);
+		BotDetector.scanRadius = bd.getInt("scan_radius");
+		AFKPGC.debug("Impact Scan Radius: ", BotDetector.scanRadius);
+		ConfigurationSection bdbc = bd.getConfigurationSection("bounds");
+		//BotDetector Bounds Configuration
+		BotDetector.relaxationFactor = bdbc.getDouble("relaxation_factor");
+		AFKPGC.debug("Bounding Box Relaxation Factor: ", BotDetector.relaxationFactor);
+		double thresh = bdbc.getDouble("threshold", -1.0);
+		double contain = bdbc.getDouble("contained", -1.0);
+		double containY = bdbc.getDouble("contained_exclude_y", -1.0);
+		double volume = bdbc.getDouble("volume_similar", -1.0);
+		double surface = bdbc.getDouble("surface_similar", -1.0);
+		double nearly = bdbc.getDouble("nearly_contained", -1.0);
+		double nearlyY = bdbc.getDouble("nearly_contained_exclude_y", -1.0);
+		if (thresh < 0.0 || contain < 0.0 || containY < 0.0 || volume < 0.0 || surface < 0.0 ||
+				nearly < 0.0 || nearlyY < 0.0)  {
+			AFKPGC.logger.warning("Configuration Invalid: bounding box interpretation configuration " +
+					"not specified or uses negative numbers!");
+			return false;
+		} else {
+			AFKPGC.debug("Bot on Bounds Threshold: ", thresh);
+			AFKPGC.debug("    Contained Weight: ", contain);
+			AFKPGC.debug("    Contained Exc. Y Weight: ", containY);
+			AFKPGC.debug("    Volume Similar Weight: ", volume);
+			AFKPGC.debug("    Surface Similar Weight: ", surface);
+			AFKPGC.debug("    Nearly Contained Weight: ", nearly);
+			AFKPGC.debug("    Nearly Contained Exc. Y Weight: ", nearlyY);
+		}
+		BotDetector.boundsConfig = new BoundResultsConfiguration(thresh, contain, containY,
+				volume, surface, nearly, nearlyY);
+
+		ConfigurationSection ls = conf.getConfigurationSection("lag_scanner");
+		//LagScanner
+		LagScanner.cacheTimeout = ls.getLong("cache_timeout");
+		AFKPGC.debug("LagScanner Cache Timeout: ", LagScanner.cacheTimeout);
+		LagScanner.lagSourceThreshold = ls.getLong("lag_threshold");
+		AFKPGC.debug("LagScanner Source Threshold: ", LagScanner.lagSourceThreshold);
+
+		LagCostConfig.getInstance().clearCosts(); // TODO: change to get lock
+		ConfigurationSection lstb = ls.getConfigurationSection("tick_block");
+		for (String key : lstb.getKeys(false) ) {
+			try {
+				Material mat = Material.getMaterial(key);
+				if (mat == null) {
+					AFKPGC.logger.warning("Invalid material for tick block cost: " + key);
+					continue;
+				} else {
+					int cost = lstb.getInt(key);
+					LagCostConfig.getInstance().setCost(mat, cost);
+					AFKPGC.debug("LagScanner Material: ", mat, " c/ea. ", cost);
+				}
+			} catch (Exception e) {
+				AFKPGC.logger.warning("Exception while setting tick block cost: " + key);
+				e.printStackTrace();
+			}
+		}
+
+		ConfigurationSection lste = ls.getConfigurationSection("tick_entity");
+		for (String key : lste.getKeys(false) ) {
+			try {
+				EntityType et = EntityType.valueOf(key);
+				if (et == null) {
+					AFKPGC.logger.warning("Invalid entity type for tick entity cost: " + key);
+					continue;
+				} else {
+					int cost = lste.getInt(key);
+					LagCostConfig.getInstance().setCost(et, cost);
+					AFKPGC.debug("LagScanner Entity: ", et, " c/ea. ", cost);
+				}
+			} catch (Exception e2) {
+				AFKPGC.logger.warning("Exception while setting tick entity cost: " + key);
+				e2.printStackTrace();
+			}
+		}
+
+		//Kicker
+
 		ArrayList<Warning> warnings = new ArrayList<Warning>();
 		ktl = conf.getStringList("warnings");
 		for (String s : ktl) {
@@ -98,38 +215,20 @@ public class ConfigurationReader {
 					sb.append(c);
 				}
 			}
-			warnings.add(new Warning(n * 1000, sb.toString().trim()));
+			Warning warn = new Warning(n * 1000, sb.toString().trim()); 
+			warnings.add(warn);
+			AFKPGC.debug("Warning added: ", warn);
 		}
 
-		int wlen = warnings.size();
-		Warning[] wa = new Warning[wlen];
-		for (int i = 0; i < wlen; i++)
-			wa[i] = warnings.get(i);
+		Warning[] wa = warnings.toArray(new Warning[warnings.size()]);
 
-		Set<UUID> immuneAccounts = new HashSet<UUID>();
-		for (String account_id : conf.getStringList("immune_accounts")) {
-			try {
-				UUID uuid = UUID.fromString(account_id);
-				// TODO: When Bukkit gets their act together with the account
-				// ID migrations and makes Server.getOfflinePlayer(UUID)
-				// reasonably efficient, validate the account ID is a real
-				// player on this server.
-				immuneAccounts.add(uuid);
-			} catch (Exception ex) {
-				AFKPGC.logger.info("Invalid UUID in immune_accounts: "
-						+ account_id);
-			}
-		}
-		BotDetector.acceptableTPS = conf.getInt("acceptable_TPS");
-		BotDetector.criticalTPSChange = (float) conf
-				.getDouble("critical_TPS_Change");
-		BotDetector.frequency = conf.getInt("kicking_frequency");
-		BotDetector.longBans = conf.getBoolean("long_bans");
 		Kicker.message_on_kick = conf.getString("kick_message");
+		AFKPGC.debug("Kick Message: ", Kicker.message_on_kick);
 		Kicker.warnings = wa;
 		Kicker.kickThresholds = kickThresholds;
 		AFKPGC.immuneAccounts = immuneAccounts;
 
+		
 		return true;
 	}
 

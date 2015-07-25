@@ -1,3 +1,5 @@
+package com.github.Kraken3.AFKPGC;
+
 /**
  * Configuration for interpreting Bound Results.
  *

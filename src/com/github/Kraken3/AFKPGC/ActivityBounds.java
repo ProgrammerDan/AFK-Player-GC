@@ -1,3 +1,5 @@
+package com.github.Kraken3.AFKPGC;
+
 import java.util.List;
 import org.bukkit.Location;
 

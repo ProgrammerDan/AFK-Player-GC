@@ -1,5 +1,9 @@
+package com.github.Kraken3.AFKPGC;
+
 /**
  * Quick and dirty bound results for more complex analysis of movement patterns.
+ * 
+ * @author ProgrammerDan
  */
 public class BoundResults {
 	private boolean contained;
@@ -37,5 +41,19 @@ public class BoundResults {
 	}
 	public boolean getNearlyContainedExcludeY() {
 		return nearlyContainedExcludeY;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("BoundResults: [")
+			.append(contained).append(",")
+			.append(containedExcludeY).append(",")
+			.append(volumeSimilar).append(",")
+			.append(surfaceSimilar).append(",")
+			.append(nearlyContained).append(",")
+			.append(nearlyContainedExcludeY).append(",")
+			.append("]");
+		return sb.toString();
 	}
 }
