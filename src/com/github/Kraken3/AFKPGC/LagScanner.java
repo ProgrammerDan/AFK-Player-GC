@@ -1,3 +1,5 @@
+package com.github.Kraken3.AFKPGC;
+
 import org.bukkit.Location;
 import org.bukkit.Chunk;
 import org.bukkit.World;
@@ -11,7 +13,7 @@ import java.util.HashMap;
  * 
  * @author ProgrammerDan
  */
-public class LagScanner() {
+public class LagScanner {
 
 	private static Map<String, Map<Long, LagScanner.Result>> cache = 
 			new HashMap<String, Map<Long, LagScanner.Result>>();
@@ -39,7 +41,7 @@ public class LagScanner() {
 	public void run() {
 		boolean lagSource = false;
 		Chunk originChunk = center.getChunk();
-		world chunkWorld = originChunk.getWorld();
+		World chunkWorld = originChunk.getWorld();
 		int oX = originChunk.getX();
 		int oZ = originChunk.getZ();
 		long now = System.currentTimeMillis(); // all tests against same millis ... for now.
@@ -64,7 +66,7 @@ public class LagScanner() {
 			}
 		}
 
-		this.isLagSource = lagSource
+		this.isLagSource = lagSource;
 		AFKPGC.logger.info("Lag test centered on (" + center.getX() + ", " + center.getZ() + ") took " + 
 				(System.currentTimeMillis() - now) + " seconds");
 		if (callback != null) {
@@ -73,7 +75,7 @@ public class LagScanner() {
 	}
 
 	public LagScanner.Result testChunk(Chunk chunk, long now) {
-		String world = chunk.getWorld().getName()
+		String world = chunk.getWorld().getName();
 		long chunkId = (long) chunk.getX() << 32L + (long) chunk.getZ();
 		Map<Long, LagScanner.Result> worldCache = null;
 		if (!LagScanner.cache.containsKey(world)) {
@@ -86,7 +88,7 @@ public class LagScanner() {
 		LagScanner.Result result = null;
 		if (worldCache.containsKey(chunkId)) {
 			LagScanner.Result cachedResult = worldCache.get(chunkId);
-			if (cacheResult.lastUpdate + cacheTimeout > now) {
+			if (cachedResult.lastUpdate + cacheTimeout > now) {
 				// hasn't exceeded cache timeout, so use it.
 				result = cachedResult;
 			} else {
@@ -97,7 +99,7 @@ public class LagScanner() {
 
 		if (result == null) {
 			// not in the cache, so let's compute.
-			long totalCost = 0L
+			long totalCost = 0L;
 
 			// Test tiles
 			BlockState[] lagTiles = chunk.getTileEntities();
@@ -139,7 +141,7 @@ public class LagScanner() {
 		public long chunkId;
 		public int chunkX;
 		public int chunkZ;
-		public lone lagContrib;
+		public long lagContrib;
 		public long lastUpdate;
 
 		public Result(String worldId, long chunkId, int chunkX, int chunkZ, long lagContrib, long lastUpdate) {

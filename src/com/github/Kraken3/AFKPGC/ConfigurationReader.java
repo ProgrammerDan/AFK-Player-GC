@@ -8,7 +8,10 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
+import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.EntityType;
 
 public class ConfigurationReader {
 	public static boolean readConfig() {
@@ -128,9 +131,9 @@ public class ConfigurationReader {
 		ConfigurationSection ls = conf.getConfigurationSection("lag_scanner");
 		//LagScanner
 		LagScanner.cacheTimeout = ls.getLong("cache_timeout");
-		LagScanner.lagSourceThreshold = ls.getLong("bot_threshold")
+		LagScanner.lagSourceThreshold = ls.getLong("bot_threshold");
 
-		LagCostConfig.getInstance().clear(); // TODO: change to get lock
+		LagCostConfig.getInstance().clearCosts(); // TODO: change to get lock
 		ConfigurationSection lstb = ls.getConfigurationSection("tick_block");
 		for (String key : lstb.getKeys(false) ) {
 			try {
@@ -140,11 +143,11 @@ public class ConfigurationReader {
 					continue;
 				} else {
 					int cost = lstb.getInt(key);
-					LagCostConfig.getInstance().addCost(mat, cost);
+					LagCostConfig.getInstance().setCost(mat, cost);
 				}
 			} catch (Exception e) {
 				AFKPGC.logger.warning("Exception while setting tick block cost: " + key);
-				AFKPGC.logger.warning(e);
+				e.printStackTrace();
 			}
 		}
 
@@ -157,11 +160,11 @@ public class ConfigurationReader {
 					continue;
 				} else {
 					int cost = lste.getInt(key);
-					LagCostConfig.getInstance().addCost(et, cost);
+					LagCostConfig.getInstance().setCost(et, cost);
 				}
 			} catch (Exception e2) {
 				AFKPGC.logger.warning("Exception while setting tick entity cost: " + key);
-				AFKPGC.logger.warning(e2);
+				e2.printStackTrace();
 			}
 		}
 

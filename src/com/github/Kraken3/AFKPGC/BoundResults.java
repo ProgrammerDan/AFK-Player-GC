@@ -1,3 +1,5 @@
+package com.github.Kraken3.AFKPGC;
+
 /**
  * Quick and dirty bound results for more complex analysis of movement patterns.
  * 

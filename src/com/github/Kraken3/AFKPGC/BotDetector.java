@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
@@ -118,11 +119,11 @@ public class BotDetector implements Runnable {
 			Suspect thisRoundSuspect = null;
 			// Now find first top suspect to pass the truebot tests.
 			if (topSuspects.size() > 0) {
-				for (Map.Entry<Integer, Suspect> entry : topSuspects) {
+				for (Map.Entry<Integer, Suspect> entry : topSuspects.entrySet()) {
 					Suspect curSuspect = entry.getValue();
 					if (!AFKPGC.immuneAccounts.contains(curSuspect.getUUID())) {
 						// Test Bounds for truebot(tm) detection.
-						BoundResult bounds = curSuspect.getResults();
+						BoundResults bounds = curSuspect.getResults();
 						if (bounds != null) {
 							double truebot = 0.0;
 							truebot += (bounds.getContained() ? boundsConfig.getContained() : 0.0);
@@ -139,7 +140,7 @@ public class BotDetector implements Runnable {
 								// Now test surrounding area.
 								Location point = curSuspect.getLocation();
 
-								LagScanner ls = new LagScanner(point, radius, null);
+								LagScanner ls = new LagScanner(point, scanRadius, null);
 								ls.run(); // TODO: move this and ban results to thread.
 								if (ls.isLagSource()) {
 									thisRoundSuspect = curSuspect;
@@ -192,7 +193,7 @@ public class BotDetector implements Runnable {
 							AFKPGC.logger.info( "The player " + lastRoundSuspect.getName()
 									+ " is suspected to cause lag, kicking him resulted in a TPS improvement of "
 									+ String.valueOf(currentTPS - lastRoundTPS) + " at the location "
-									+ lastRoundSuspects.getLocation().toString());
+									+ lastRoundSuspect.getLocation().toString());
 						}
 					}
 				}

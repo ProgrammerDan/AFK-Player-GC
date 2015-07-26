@@ -37,7 +37,7 @@ public class Kicker implements Runnable {
 		   if(numberOfPlayersOnline == 0) return;
 		   if(numberOfPlayersOnline > kickThresholds.length) {			   
 			   //Message.send(13);
-			   LastActivity.FixInconsitencies();
+			   LastActivity.FixInconsistencies();
 			   numberOfPlayersOnline = LastActivity.lastActivities.size();
 		   }			   
 		   
@@ -56,8 +56,8 @@ public class Kicker implements Runnable {
 			   if(!lastActivities.containsKey(i)) continue;
 			   LastActivity la = lastActivities.get(i);			  
 			   long time = LastActivity.currentTime - la.timeOfLastActivity;
-			   long timeOld = la.timeOflastKickerPass - la.timeOfLastActivity;
-			   la.timeOflastKickerPass = LastActivity.currentTime;
+			   long timeOld = la.timeOfLastKickerPass - la.timeOfLastActivity;
+			   la.timeOfLastKickerPass = LastActivity.currentTime;
 						   
 			   if(timeOld < 0) continue;
 			   

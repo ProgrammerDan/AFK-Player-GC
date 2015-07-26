@@ -1,7 +1,5 @@
 package com.github.Kraken3.AFKPGC;
 
-
-
 import java.util.Map;
 import java.util.LinkedList;
 import java.util.TreeMap;
@@ -75,17 +73,17 @@ public class LastActivity{
 			return null;
 		} else {
 			return new BoundResults(
-				newBounds.contains(lastBounds) || lastBound.contains(newBounds),
-				newBounds.containsExcludeY(lastBounds) ||
-				lastBounds.containsExcludeY(newBounds),
+				newBounds.contains(lastBounds) || lastBounds.contains(newBounds),
+				newBounds.containsExcludesY(lastBounds) ||
+				lastBounds.containsExcludesY(newBounds),
 				newBounds.volume() * relaxFactor >= lastBounds.volume() ||
 				lastBounds.volume() * relaxFactor >= newBounds.volume(),
 				newBounds.travelSurface() * relaxFactor >= lastBounds.travelSurface() ||
 				lastBounds.travelSurface() * relaxFactor >= newBounds.travelSurface(),
 				newBounds.contains(lastBounds, relaxFactor) ||
 				lastBounds.contains(newBounds, relaxFactor),
-				newBounds.containsExcludeY(lastBounds, relaxFactor) ||
-				lastBounds.containsExcludeY(newBounds, relaxFactor));
+				newBounds.containsExcludesY(lastBounds, relaxFactor) ||
+				lastBounds.containsExcludesY(newBounds, relaxFactor));
 		}	
 	}
 }

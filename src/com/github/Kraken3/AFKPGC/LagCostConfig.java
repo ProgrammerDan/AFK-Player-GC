@@ -1,3 +1,5 @@
+package com.github.Kraken3.AFKPGC;
+
 import org.bukkit.entity.EntityType;
 import org.bukkit.Material;
 
@@ -25,11 +27,11 @@ public class LagCostConfig {
 	}
 
 	public synchronized Integer cost(Material material) {
-		return materialCosts.contains(material) ? materialCosts.get(material) : 0;
+		return materialCosts.containsKey(material) ? materialCosts.get(material) : 0;
 	}
 
 	public synchronized Integer cost(EntityType entity) {
-		return entityCosts.contains(entity) ? entityCosts.get(entity) : 0;
+		return entityCosts.containsKey(entity) ? entityCosts.get(entity) : 0;
 	}
 
 	public synchronized void clearCosts() {

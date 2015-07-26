@@ -51,7 +51,7 @@ public class AFKPGC extends JavaPlugin {
 		getServer().getScheduler().scheduleSyncRepeatingTask(this,
 				new Runnable() {
 					public void run() {
-						LastActivity.FixInconsitencies();
+						LastActivity.FixInconsistencies();
 					}
 				}, 0, 6000L);
 		
@@ -86,7 +86,7 @@ public class AFKPGC extends JavaPlugin {
 			la = new LastActivity();
 			LastActivity.lastActivities.put(uuid, la);
 			la.playerName = uuid;
-			la.timeOflastKickerPass = LastActivity.currentTime;
+			la.timeOfLastKickerPass = LastActivity.currentTime;
 		}
 		la.timeOfLastActivity = LastActivity.currentTime;
 		return la;

@@ -59,7 +59,7 @@ lag_scanner:
     DROPPER: 3
     JUKEBOX: 1
     NOTEBLOCK: 1
-    SIGN:1
+    SIGN: 1
     HOPPER: 5
     DISPENSER: 3
     FURNACE: 3
