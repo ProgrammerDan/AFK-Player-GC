@@ -35,8 +35,8 @@ public class BotDetector implements Runnable {
 	public static int maxSuspects; // TODO
 	public static int maxReprieve; // TODO
 	public static int minBaselineMovement; // TODO
-	public static int shortBan; //TODO in milliseconds
-	public static int longBan; //TODO in milliseconds
+	public static long longBan; //TODO in milliseconds
+	public static int scanRadius; // TODO in chunks
 	public static BoundResultsConfiguration boundsConfig; // TODO
 	public static long frequency; // how often this runs in ticks
 	public static File banfile;
@@ -139,8 +139,9 @@ public class BotDetector implements Runnable {
 								// Now test surrounding area.
 								Location point = curSuspect.getLocation();
 
-								// TODO
-								{
+								LagScanner ls = new LagScanner(point, radius, null);
+								ls.run(); // TODO: move this and ban results to thread.
+								if (ls.isLagSource()) {
 									thisRoundSuspect = curSuspect;
 									Date currentDate = new Date();
 									long bantime = (long) (frequency / currentTPS * 1000);

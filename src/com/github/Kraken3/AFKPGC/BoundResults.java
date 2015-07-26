@@ -1,5 +1,7 @@
 /**
  * Quick and dirty bound results for more complex analysis of movement patterns.
+ * 
+ * @author ProgrammerDan
  */
 public class BoundResults {
 	private boolean contained;

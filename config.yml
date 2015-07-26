@@ -12,22 +12,120 @@ kick_thresholds:
   - When 2  to 50  players online kick after 240 seconds
   - When 1  to 1  players online kick after 3600 seconds  
   
-# Once the TPS get below acceptable_TPS, the BotDetector starts culling potential lag causer.
-acceptable_TPS: 15
+bot_detector:
+  # Once the TPS get below acceptable_TPS, the BotDetector starts culling potential lag causer.
+  acceptable_TPS: 15
+  # critical_TPS_Change is the minimal change in TPS that needs to happen after kicking a player, 
+  #   so he is marked as someone causing lag and his name is logged.
+  critical_TPS_Change: 0.3
+  # kicking_frequency is how often a player gets kicked and the TPS change monitored afterwards 
+  #   in ticks
+  kicking_frequency: 1200
+  # Whether players get banned for a long time/ until the tick is high again
+  long_bans: false
+  # Length of long ban
+  ban_length: 21600000
+  # Max locations per player to store while measuring movement patterns
+  max_locations: 10
+  # Max suspects to consider per Detector round
+  max_suspects: 10
+  # Baseline movement (in MC blocks) to be considered for bot detection
+  min_baseline: 1024
+  # Maximum scan rounds to "ignore" a player who was previously cleared as a lag source
+  max_reprieve: 30
+  # Scan radius in chunks around location, to check for lag causes
+  scan_radius: 3
+  # Configure the threshold and individual contribution of bound types
+  bounds:
+    threshold: 2.5
+    contained: 1.5
+    contained_exclude_y: 1.5
+    volume_similar: 1.0
+    surface_similar: 1.0
+    nearly_contained: 0.75
+    nearly_contained_exclude_y: 0.75
 
-# critical_TPS_Change is the minimal change in TPS that needs to happen after kicking a player, 
-#   so he is marked as someone causing lag and his name is logged.
-critical_TPS_Change: 0.3
-
-# kicking_frequency is how often a player gets kicked and the TPS change monitored afterwards 
-#   in ticks
-kicking_frequency: 1200
-
-# Whether players get banned for a long time/ until the tick is high again
-long_bans: false
+lag_scanner:
+  # Length of time to cache individual chunk results
+  cache_timeout: 900000
+  # Summation threshold of entity and tile costs for lag flag
+  lag_threshold: 750
+  # Per tickable block cost 
+  tick_block:
+    BANNER: 1
+    BEACON: 5
+    BREWING_STAND: 1
+    SPAWNER: 3
+    DROPPER: 3
+    JUKEBOX: 1
+    NOTEBLOCK: 1
+    SIGN:1
+    HOPPER: 5
+    DISPENSER: 3
+    FURNACE: 3
+    BURNING_FURNACE: 4
+    CHEST: 1
+    ACTIVATOR_RAIL: 1
+    DETECTOR_RAIL: 1
+    DAYLIGHT_DETECTOR: 1
+    DAYLIGHT_DETECTOR_INVERTED: 1
+    DIODE: 1
+    DIODE_BLOCK_OFF: 1
+    DIODE_BLOCK_ON: 1
+    PISTON_BASE: 2
+    PISTON_STICKY_BASE: 2
+    POWERED_RAIL: 1
+    REDSTONE_COMPARATOR: 1
+    REDSTONE_COMPARATOR_OFF: 1
+    REDSTONE_COMPARATOR_ON: 1
+    REDSTONE_LAMP_OFF: 1
+    REDSTONE_LAMP_ON: 1
+    REDSTONE_TORCH_OFF: 1
+    REDSTONE_TORCH_ON: 1
+    WALL_BANNER: 1
+    WALL_SIGN: 1
+    SIGN_POST: 1
+  # Per tickable entity cost
+  tick_entity:
+    ARMOR_STAND: 1
+    BOAT: 2
+    CAVE_SPIDER: 1
+    CHICKEN: 1
+    COW: 1
+    CREEPER: 1
+    ENDERMAN: 2
+    ENDERMITE: 1
+    GHAST: 2
+    GUARDIAN: 2
+    HORSE: 1
+    IRON_GOLEM: 2
+    MAGMA_CUBE: 2
+    MINECART: 1
+    MINECART_CHEST: 1
+    MINECART_FURNACE: 2
+    MINECART_HOPPER: 5
+    MINECART_TNT: 3
+    MUSHROOM_COW: 1
+    OCELOT: 1
+    PAINTING: 1
+    PIG: 1
+    PIG_ZOMBIE: 1
+    PRIMED_TNT: 3
+    RABBIT: 1
+    SHEEP: 1
+    SILVERFISH: 2
+    SKELETON: 2
+    SLIME: 2
+    SNOWMAN: 2
+    SPIDER: 1
+    SQUID: 1
+    VILLAGER: 1
+    WITCH: 2
+    WITHER: 3
+    WOLF: 1
+    ZOMBIE: 1
 
 # warnings field reads the first number, the rest is text to be sent to a player
-  
 warnings:
   - 1 §4AFK Plugin - You'll be kicked in 1 second
   - 2 §4AFK Plugin - You'll be kicked in 2 seconds
