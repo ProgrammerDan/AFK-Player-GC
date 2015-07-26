@@ -42,4 +42,18 @@ public class BoundResults {
 	public boolean getNearlyContainedExcludeY() {
 		return nearlyContainedExcludeY;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("BoundResults: [")
+			.append(contained).append(",")
+			.append(containedExcludeY).append(",")
+			.append(volumeSimilar).append(",")
+			.append(surfaceSimilar).append(",")
+			.append(nearlyContained).append(",")
+			.append(nearlyContainedExcludeY).append(",")
+			.append("]");
+		return sb.toString();
+	}
 }

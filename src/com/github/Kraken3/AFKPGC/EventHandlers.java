@@ -56,6 +56,8 @@ class EventHandlers implements Listener {
 		}
 	}
 
+	//TODO: Add replacement event if not already done?
+	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onPlayerChatEvent(PlayerChatEvent event) {
 		if (AFKPGC.enabled && BotDetector.acceptableTPS < TpsReader.getTPS()) {

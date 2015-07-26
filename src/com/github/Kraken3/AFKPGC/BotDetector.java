@@ -31,7 +31,7 @@ public class BotDetector implements Runnable {
 	public static float currentTPS = 20;
 	public static float acceptableTPS;
 	public static float criticalTPSChange;
-	public static float relaxationFactor; // TODO
+	public static double relaxationFactor; // TODO
 	public static int maxLocations; // TODO
 	public static int maxSuspects; // TODO
 	public static int maxReprieve; // TODO
@@ -63,13 +63,15 @@ public class BotDetector implements Runnable {
 		if (reprieve == null) {
 			reprieve = new HashMap<UUID, Integer>();
 		} else {
-			// decrement reprieve.
+			// decrement reprieve, regardless of plugin's active status.
 			for (Iterator<Map.Entry<UUID, Integer>> i = reprieve.entrySet().iterator(); i.hasNext(); ) {
 				Map.Entry<UUID, Integer> entry = i.next();
 				Integer roundsLeft = entry.getValue() - 1;
 				if (roundsLeft <= 0) { // no more reprieve
+					AFKPGC.debug("Reprieve is up for ", entry.getKey());
 					i.remove();
 				} else {
+					AFKPGC.debug("Reprieve decremented for ", entry.getKey());
 					entry.setValue(roundsLeft);
 				}
 			}
@@ -78,18 +80,20 @@ public class BotDetector implements Runnable {
 		if (!AFKPGC.enabled) {
 			return;
 		}
+		
 		currentTPS = TpsReader.getTPS();
+		AFKPGC.debug("Bot Detector Running, TPS is: ", currentTPS);
 		Map<UUID, LastActivity> lastActivities = LastActivity.lastActivities;
 		if (currentTPS < acceptableTPS) {
 			topSuspects.clear();
 			int smallestMovedDistance = minBaselineMovement;
-			Set<Map.Entry<UUID, LastActivity>> entries = lastActivities.entrySet();
 			// find new top suspects
-			for (Map.Entry<UUID, LastActivity> entry : entries) {
+			for (Map.Entry<UUID, LastActivity> entry : lastActivities.entrySet()) {
 				UUID playerUUID = entry.getKey();
 				/* according to the author of AFKGPC, there might be
 				 * inconsistencies in this list, so this additional
 				 * check is needed */
+				// TODO: See if inconsistencies might be thread-safeness related.
 				if (lastActivities.containsKey(playerUUID)) {
 					LastActivity la = entry.getValue();
 					la.loggedLocations.add(Bukkit.getPlayer(playerUUID).getLocation());
@@ -97,9 +101,9 @@ public class BotDetector implements Runnable {
 						if (la.loggedLocations.size() > maxLocations) {
 							la.loggedLocations.removeFirst();
 						}
-						// we keep tracking location even if on reprieve.
-						if (!reprieve.containsKey(playerUUID)) {
-							int itWasntMeISwear = la.calculateMovementradius();
+						// we tracking location even if on reprieve or immune, but that's it
+						if (!reprieve.containsKey(playerUUID) && AFKPGC.immuneAccounts.contains(playerUUID)) {
+							int itWasntMeISwear = la.calculateMovementRadius();
 							if (itWasntMeISwear < smallestMovedDistance) {
 								smallestMovedDistance = itWasntMeISwear;
 								Player dirtyLiar = Bukkit.getPlayer(playerUUID);
@@ -107,11 +111,16 @@ public class BotDetector implements Runnable {
 								topSuspects.put(itWasntMeISwear, new Suspect(
 										playerUUID, dirtyLiar.getName(), dirtyLiar.getLocation(),
 										la.evaluateBounds(relaxationFactor) ) );
+								AFKPGC.debug("Player ", playerUUID, " added as suspect (movement was ",
+										itWasntMeISwear, ")");
 
 								if (topSuspects.size() > maxSuspects) {
-									topSuspects.pollLastEntry(); // gets rid of largest distance
+									Suspect cleared = topSuspects.pollLastEntry().getValue(); // gets rid of largest distance
+									AFKPGC.debug("Player ", cleared.getUUID(), " released as suspect");
 								}
 							}
+						} else {
+							AFKPGC.debug("Skipping ", playerUUID, " due to reprieve or immunity");
 						}
 					}
 				}
@@ -121,52 +130,60 @@ public class BotDetector implements Runnable {
 			if (topSuspects.size() > 0) {
 				for (Map.Entry<Integer, Suspect> entry : topSuspects.entrySet()) {
 					Suspect curSuspect = entry.getValue();
-					if (!AFKPGC.immuneAccounts.contains(curSuspect.getUUID())) {
-						// Test Bounds for truebot(tm) detection.
-						BoundResults bounds = curSuspect.getResults();
-						if (bounds != null) {
-							double truebot = 0.0;
-							truebot += (bounds.getContained() ? boundsConfig.getContained() : 0.0);
-							truebot += (bounds.getContainedExcludeY() ? boundsConfig.getContainedExcludeY() : 0.0);
-							truebot += (bounds.getVolumeSimilar() ? boundsConfig.getVolumeSimilar() : 0.0);
-							truebot += (bounds.getSurfaceSimilar() ? boundsConfig.getSurfaceSimilar() : 0.0);
-							truebot += (bounds.getNearlyContained() ? boundsConfig.getNearlyContained() : 0.0);
-							truebot += (bounds.getNearlyContainedExcludeY() ? 
-									boundsConfig.getNearlyContainedExcludeY() : 0.0);
+					// Test Bounds for truebot(tm) detection.
+					BoundResults bounds = curSuspect.getResults();
+					if (bounds != null) {
+						double truebot = 0.0;
+						truebot += (bounds.getContained() ? boundsConfig.getContained() : 0.0);
+						truebot += (bounds.getContainedExcludeY() ? boundsConfig.getContainedExcludeY() : 0.0);
+						truebot += (bounds.getVolumeSimilar() ? boundsConfig.getVolumeSimilar() : 0.0);
+						truebot += (bounds.getSurfaceSimilar() ? boundsConfig.getSurfaceSimilar() : 0.0);
+						truebot += (bounds.getNearlyContained() ? boundsConfig.getNearlyContained() : 0.0);
+						truebot += (bounds.getNearlyContainedExcludeY() ? 
+								boundsConfig.getNearlyContainedExcludeY() : 0.0);
 
-							if (truebot >= boundsConfig.getThreshold()) {
-								// Its movement looks botlike.
+						if (truebot >= boundsConfig.getThreshold()) {
+							// Its movement looks botlike.
+							AFKPGC.debug("Player ", curSuspect.getUUID(), " looks like a bot (bounds test ", 
+									truebot, "): ", bounds);
 
-								// Now test surrounding area.
-								Location point = curSuspect.getLocation();
+							// Now test surrounding area.
+							Location point = curSuspect.getLocation();
 
-								LagScanner ls = new LagScanner(point, scanRadius, null);
-								ls.run(); // TODO: move this and ban results to thread.
-								if (ls.isLagSource()) {
-									thisRoundSuspect = curSuspect;
-									Date currentDate = new Date();
-									long bantime = (long) (frequency / currentTPS * 1000);
-									/* Because the ban time is based on real time and the next run
-									 * of this method is based on the tick, the ban time needs to be
-									 * adjusted to the tick. The long form of this would be:
-									 * (20/currentTPS) * (frequency/20) * 1000
-									 * The time is in ms */
-									banList.addBan(curSuspect.getName(),
-											"You were suspected to cause lag and banned for "
-													+ bantime / 1000 + " seconds",
-													new Date(currentDate.getTime() + bantime), null);
-									// ban the player briefly and skip the other suspects.
-									break;
-								}
-							} 
-							// It passed the truebot(tm) detection -- for now. Give a temporary reprieve.
-							reprieve.put(curSuspect.getUUID(), maxReprieve);
-						} // else not enough info yet. Pass.
-					}
+							LagScanner ls = new LagScanner(point, scanRadius, null);
+							ls.run(); // TODO: move this and ban results to thread.
+							if (ls.isLagSource()) {
+								thisRoundSuspect = curSuspect;
+								Date currentDate = new Date();
+								long bantime = (long) (frequency / currentTPS * 1000);
+								/* Because the ban time is based on real time and the next run
+								 * of this method is based on the tick, the ban time needs to be
+								 * adjusted to the tick. The long form of this would be:
+								 * (20/currentTPS) * (frequency/20) * 1000
+								 * The time is in ms */
+								banList.addBan(curSuspect.getName(),
+										"You were suspected to cause lag and banned for "
+												+ bantime / 1000 + " seconds",
+												new Date(currentDate.getTime() + bantime), null);
+								// ban the player briefly and skip the other suspects.
+								AFKPGC.debug("Player ", curSuspect.getUUID(), " (", curSuspect.getName(),
+										") exceeded ban threshold with ", ls.getLagCompute());
+								break;
+							}
+						}
+						// It passed the truebot(tm) detection -- for now. Give a temporary reprieve.
+						reprieve.put(curSuspect.getUUID(), maxReprieve);
+						AFKPGC.debug("Player ", curSuspect.getUUID(), " unlikely bot, given reprieve (bounds test ",
+								truebot, "): ", bounds);
+					} // else not enough info yet. Pass.
 				}
+			} else {
+				AFKPGC.debug("No suspects this round.");
 			}
 
 			if (lastRoundSuspect != null) {
+				// TODO: This is starting to stink of synchronization issues. We shouldn't need
+				//       to check immune so often within the same compute round.
 				if (!AFKPGC.immuneAccounts.contains(lastRoundSuspect.getUUID())) {
 					if (currentTPS - lastRoundTPS > criticalTPSChange) {
 						/* This can be relatively sensitive, because it will only ban players for 
@@ -182,6 +199,7 @@ public class BotDetector implements Runnable {
 								bannedPlayers.add(lastRoundSuspect.getName());
 								addToBanfile(lastRoundSuspect.getName());
 								suspectedBotters.remove(lastRoundSuspect.getName());
+								AFKPGC.debug("Player ", lastRoundSuspect.getUUID(), " long banned, confirmed lag source.");
 							}
 							AFKPGC.logger.info("The player " + lastRoundSuspect.getName()
 									+ " causes lag and is a repeated offender, kicking him resulted"
@@ -195,14 +213,23 @@ public class BotDetector implements Runnable {
 									+ String.valueOf(currentTPS - lastRoundTPS) + " at the location "
 									+ lastRoundSuspect.getLocation().toString());
 						}
+					} else {
+						AFKPGC.debug("Player ", lastRoundSuspect.getUUID(), " (", lastRoundSuspect.getName(),
+								") cleared, kicking them did not improve TPS -- granting a reprieve");
+						reprieve.put(lastRoundSuspect.getUUID(), maxReprieve);
 					}
+				} else {
+					AFKPGC.debug("Player ", lastRoundSuspect.getUUID(), " was suspected but is immune.");
 				}
 			}
 
 			lastRoundTPS = currentTPS;
 			lastRoundSuspect = thisRoundSuspect;
 		} else { // TPS is high enough
+			// TODO: Evaluate if this makes sense. We should probably see if TPS stays good for a while
+			//       first, then clear bans. E.g. this sets or decrements a counter.
 			if (bannedPlayers.size() != 0) {
+				AFKPGC.debug("TPS has improved, removing bans");
 				freeEveryone(); // not everyone, but everyone banned by this plugin
 			}
 		}

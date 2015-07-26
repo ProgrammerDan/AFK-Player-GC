@@ -15,6 +15,7 @@ public class AFKPGC extends JavaPlugin {
 	public static JavaPlugin plugin;
 	public static boolean enabled = true;
 	public static Set<UUID> immuneAccounts;
+	public static boolean debug = false;
 
 	@Override
 	public void onEnable() {
@@ -27,8 +28,9 @@ public class AFKPGC extends JavaPlugin {
 		BotDetector.parseBanlist();
 		// Reads Config.yml - false as an answer indicated unrecoverable error
 		AFKPGC.enabled = ConfigurationReader.readConfig();
-		if (!AFKPGC.enabled)
+		if (!AFKPGC.enabled) {
 			logger.warning("Plugin is not running");
+		}
 
 		getServer().getPluginManager()
 				.registerEvents(new EventHandlers(), this);
@@ -36,7 +38,7 @@ public class AFKPGC extends JavaPlugin {
 		// Checks whether to 'garbage collect' AFKers every 20 ticks (1
 		// seconds);
 		getServer().getScheduler().scheduleSyncRepeatingTask(this,
-				new Kicker(), 0, 20L);
+				new Kicker(), 0, 20L); // TODO make this configurable
 
 		getServer().getScheduler().scheduleSyncRepeatingTask(this,
 				new Runnable() {
@@ -47,13 +49,14 @@ public class AFKPGC extends JavaPlugin {
 
 		getServer().getScheduler().scheduleSyncRepeatingTask(this,
 				new BotDetector(), 0, BotDetector.frequency);
+
 		// Because bukkit..
 		getServer().getScheduler().scheduleSyncRepeatingTask(this,
 				new Runnable() {
 					public void run() {
 						LastActivity.FixInconsistencies();
 					}
-				}, 0, 6000L);
+				}, 0, 6000L); // TODO make this configurable
 		
 		logger.info("AFK Player Garbage Collector has been enabled");
 	}
@@ -67,13 +70,15 @@ public class AFKPGC extends JavaPlugin {
 	}
 
 	public static void removerPlayer(UUID uuid) {
-		if (LastActivity.lastActivities.containsKey(uuid))
+		if (LastActivity.lastActivities.containsKey(uuid)) {
 			LastActivity.lastActivities.remove(uuid);
+		}
 	}
 
 	public static LastActivity addPlayer(Player p) {
-		if (p == null)
+		if (p == null) {
 			return null;
+		}
 		if (AFKPGC.immuneAccounts != null && AFKPGC.immuneAccounts.contains(p.getUniqueId())) {
 			return null;
 		}
@@ -92,4 +97,13 @@ public class AFKPGC extends JavaPlugin {
 		return la;
 	}
 
+	public static void debug(Object...msg) {
+		if (AFKPGC.debug) {
+			StringBuffer sb = new StringBuffer();
+			for (Object obj : msg) {
+				sb.append(obj.toString());
+			}
+			logger.info("DEBUG: " + sb.toString());
+		}
+	}
 }

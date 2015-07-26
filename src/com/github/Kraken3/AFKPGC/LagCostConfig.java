@@ -6,6 +6,16 @@ import org.bukkit.Material;
 import java.util.Map;
 import java.util.HashMap;
 
+/**
+ * Configuration storage device for lag computation.
+ * This needs some work but should be thread-safe in its current case. It just might make
+ * threads wait longer than strictly necessary. In addition, some behavior cases may be open
+ * to inconsistent behavior during configuration reload, as reload is not currently atomic.
+ * 
+ * TODO: Replace synchronized with a mature lock.
+ * 
+ * @author ProgrammerDan
+ */
 public class LagCostConfig {
 	private Map<Material, Integer> materialCosts = new HashMap<Material, Integer>();
 	private Map<EntityType, Integer> entityCosts = new HashMap<EntityType, Integer>();

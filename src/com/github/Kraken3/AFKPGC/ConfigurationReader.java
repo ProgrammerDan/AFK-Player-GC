@@ -21,6 +21,9 @@ public class ConfigurationReader {
 		AFKPGC.plugin.reloadConfig();
 		FileConfiguration conf = AFKPGC.plugin.getConfig();
 
+		AFKPGC.debug = conf.getBoolean("debug", false);
+		AFKPGC.debug("Enabled");
+		
 		int max_players = AFKPGC.plugin.getServer().getMaxPlayers();
 		AFKPGC.logger.info("Server reports maximum of " + max_players + " players");
 
@@ -92,6 +95,7 @@ public class ConfigurationReader {
 				// reasonably efficient, validate the account ID is a real
 				// player on this server.
 				immuneAccounts.add(uuid);
+				AFKPGC.debug("Adding immune_account UUID: ", uuid);
 			} catch (Exception ex) {
 				AFKPGC.logger.info("Invalid UUID in immune_accounts: "
 						+ account_id);
@@ -101,17 +105,29 @@ public class ConfigurationReader {
 		ConfigurationSection bd = conf.getConfigurationSection("bot_detector");
 		//BotDetector
 		BotDetector.acceptableTPS = bd.getInt("acceptable_TPS");
+		AFKPGC.debug("Acceptable TPS: ", BotDetector.acceptableTPS);
 		BotDetector.criticalTPSChange = (float) bd.getDouble("critical_TPS_Change");
+		AFKPGC.debug("Critical TPS Change: ", BotDetector.criticalTPSChange);
 		BotDetector.frequency = bd.getInt("kicking_frequency");
+		AFKPGC.debug("Detector Frequency: ", BotDetector.frequency);
 		BotDetector.longBans = bd.getBoolean("long_bans");
+		AFKPGC.debug("Activate Long Bans: ", BotDetector.longBans);
 		BotDetector.maxLocations = bd.getInt("max_locations");
+		AFKPGC.debug("Max Locs to Track: ", BotDetector.maxLocations);
 		BotDetector.maxSuspects = bd.getInt("max_suspects");
+		AFKPGC.debug("Max Suspects: ", BotDetector.maxSuspects);
 		BotDetector.maxReprieve = bd.getInt("max_reprieve");
+		AFKPGC.debug("Max Reprieve Rounds: ", BotDetector.maxReprieve);
 		BotDetector.minBaselineMovement = bd.getInt("min_baseline");
+		AFKPGC.debug("Min Baseline Movement to not be a bot: ", BotDetector.minBaselineMovement);
 		BotDetector.longBan = bd.getLong("ban_length");
+		AFKPGC.debug("Long Ban Length: ", BotDetector.longBan);
 		BotDetector.scanRadius = bd.getInt("scan_radius");
+		AFKPGC.debug("Impact Scan Radius: ", BotDetector.scanRadius);
 		ConfigurationSection bdbc = bd.getConfigurationSection("bounds");
 		//BotDetector Bounds Configuration
+		BotDetector.relaxationFactor = bdbc.getDouble("relaxation_factor");
+		AFKPGC.debug("Bounding Box Relaxation Factor: ", BotDetector.relaxationFactor);
 		double thresh = bdbc.getDouble("threshold", -1.0);
 		double contain = bdbc.getDouble("contained", -1.0);
 		double containY = bdbc.getDouble("contained_exclude_y", -1.0);
@@ -124,6 +140,14 @@ public class ConfigurationReader {
 			AFKPGC.logger.warning("Configuration Invalid: bounding box interpretation configuration " +
 					"not specified or uses negative numbers!");
 			return false;
+		} else {
+			AFKPGC.debug("Bot on Bounds Threshold: ", thresh);
+			AFKPGC.debug("    Contained Weight: ", contain);
+			AFKPGC.debug("    Contained Exc. Y Weight: ", containY);
+			AFKPGC.debug("    Volume Similar Weight: ", volume);
+			AFKPGC.debug("    Surface Similar Weight: ", surface);
+			AFKPGC.debug("    Nearly Contained Weight: ", nearly);
+			AFKPGC.debug("    Nearly Contained Exc. Y Weight: ", nearlyY);
 		}
 		BotDetector.boundsConfig = new BoundResultsConfiguration(thresh, contain, containY,
 				volume, surface, nearly, nearlyY);
@@ -131,7 +155,9 @@ public class ConfigurationReader {
 		ConfigurationSection ls = conf.getConfigurationSection("lag_scanner");
 		//LagScanner
 		LagScanner.cacheTimeout = ls.getLong("cache_timeout");
-		LagScanner.lagSourceThreshold = ls.getLong("bot_threshold");
+		AFKPGC.debug("LagScanner Cache Timeout: ", LagScanner.cacheTimeout);
+		LagScanner.lagSourceThreshold = ls.getLong("lag_threshold");
+		AFKPGC.debug("LagScanner Source Threshold: ", LagScanner.lagSourceThreshold);
 
 		LagCostConfig.getInstance().clearCosts(); // TODO: change to get lock
 		ConfigurationSection lstb = ls.getConfigurationSection("tick_block");
@@ -144,6 +170,7 @@ public class ConfigurationReader {
 				} else {
 					int cost = lstb.getInt(key);
 					LagCostConfig.getInstance().setCost(mat, cost);
+					AFKPGC.debug("LagScanner Material: ", mat, " c/ea. ", cost);
 				}
 			} catch (Exception e) {
 				AFKPGC.logger.warning("Exception while setting tick block cost: " + key);
@@ -161,6 +188,7 @@ public class ConfigurationReader {
 				} else {
 					int cost = lste.getInt(key);
 					LagCostConfig.getInstance().setCost(et, cost);
+					AFKPGC.debug("LagScanner Entity: ", et, " c/ea. ", cost);
 				}
 			} catch (Exception e2) {
 				AFKPGC.logger.warning("Exception while setting tick entity cost: " + key);
@@ -187,15 +215,15 @@ public class ConfigurationReader {
 					sb.append(c);
 				}
 			}
-			warnings.add(new Warning(n * 1000, sb.toString().trim()));
+			Warning warn = new Warning(n * 1000, sb.toString().trim()); 
+			warnings.add(warn);
+			AFKPGC.debug("Warning added: ", warn);
 		}
 
-		int wlen = warnings.size();
-		Warning[] wa = new Warning[wlen];
-		for (int i = 0; i < wlen; i++)
-			wa[i] = warnings.get(i);
+		Warning[] wa = warnings.toArray(new Warning[warnings.size()]);
 
 		Kicker.message_on_kick = conf.getString("kick_message");
+		AFKPGC.debug("Kick Message: ", Kicker.message_on_kick);
 		Kicker.warnings = wa;
 		Kicker.kickThresholds = kickThresholds;
 		AFKPGC.immuneAccounts = immuneAccounts;

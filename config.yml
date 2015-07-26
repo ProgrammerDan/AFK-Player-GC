@@ -1,5 +1,7 @@
 configuration_file_version: 1
 
+debug: true
+
 # Default values might be a bit crazy.. They are intended for testing. Change them.
 
 # kick_thresholds field ignores non-numerical characters and only reads three numbers separated, 
@@ -37,6 +39,7 @@ bot_detector:
   scan_radius: 3
   # Configure the threshold and individual contribution of bound types
   bounds:
+    relaxation_factor: 1.1
     threshold: 2.5
     contained: 1.5
     contained_exclude_y: 1.5
