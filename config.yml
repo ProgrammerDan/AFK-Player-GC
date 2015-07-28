@@ -16,10 +16,10 @@ kick_thresholds:
   
 bot_detector:
   # Once the TPS get below acceptable_TPS, the BotDetector starts culling potential lag causer.
-  acceptable_TPS: 15
+  acceptable_TPS: 17.5
   # critical_TPS_Change is the minimal change in TPS that needs to happen after kicking a player, 
   #   so he is marked as someone causing lag and his name is logged.
-  critical_TPS_Change: 0.3
+  critical_TPS_Change: 0.5
   # kicking_frequency is how often a player gets kicked and the TPS change monitored afterwards 
   #   in ticks
   kicking_frequency: 1200
@@ -28,18 +28,18 @@ bot_detector:
   # Length of long ban
   ban_length: 21600000
   # Max locations per player to store while measuring movement patterns
-  max_locations: 10
+  max_locations: 5
   # Max suspects to consider per Detector round
   max_suspects: 10
   # Baseline movement (in MC blocks) to be considered for bot detection
-  min_baseline: 1024
+  min_baseline: 512
   # Maximum scan rounds to "ignore" a player who was previously cleared as a lag source
-  max_reprieve: 30
+  max_reprieve: 20
   # Scan radius in chunks around location, to check for lag causes
-  scan_radius: 3
+  scan_radius: 2
   # Configure the threshold and individual contribution of bound types
   bounds:
-    relaxation_factor: 1.1
+    relaxation_factor: 1.05
     threshold: 2.5
     contained: 1.5
     contained_exclude_y: 1.5

@@ -16,12 +16,13 @@ import java.util.TreeMap;
 import java.util.HashMap;
 
 import org.bukkit.BanList;
+import org.bukkit.BanEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 /*
- * Detects likely bots based on movement patterns
+ * Detects likely bots based on movement patterns and lag contributions
  * @author Maxopoly
  * @author ProgrammerDan
  * 
@@ -90,19 +91,20 @@ public class BotDetector implements Runnable {
 			// find new top suspects
 			for (Map.Entry<UUID, LastActivity> entry : lastActivities.entrySet()) {
 				UUID playerUUID = entry.getKey();
+				Player p = Bukkit.getPlayer(playerUUID);
 				/* according to the author of AFKGPC, there might be
 				 * inconsistencies in this list, so this additional
 				 * check is needed */
 				// TODO: See if inconsistencies might be thread-safeness related.
-				if (lastActivities.containsKey(playerUUID)) {
+				if (lastActivities.containsKey(playerUUID) && p != null) {
 					LastActivity la = entry.getValue();
-					la.loggedLocations.add(Bukkit.getPlayer(playerUUID).getLocation());
+					la.loggedLocations.add(p.getLocation());
 					if (la.loggedLocations.size() >= maxLocations) {
 						if (la.loggedLocations.size() > maxLocations) {
 							la.loggedLocations.removeFirst();
 						}
 						// we tracking location even if on reprieve or immune, but that's it
-						if (!reprieve.containsKey(playerUUID) && AFKPGC.immuneAccounts.contains(playerUUID)) {
+						if (!reprieve.containsKey(playerUUID) && !AFKPGC.immuneAccounts.contains(playerUUID)) {
 							int itWasntMeISwear = la.calculateMovementRadius();
 							if (itWasntMeISwear < smallestMovedDistance) {
 								smallestMovedDistance = itWasntMeISwear;
@@ -116,13 +118,17 @@ public class BotDetector implements Runnable {
 
 								if (topSuspects.size() > maxSuspects) {
 									Suspect cleared = topSuspects.pollLastEntry().getValue(); // gets rid of largest distance
-									AFKPGC.debug("Player ", cleared.getUUID(), " released as suspect");
+									AFKPGC.debug("Player ", cleared.getUUID(), " released as suspect, better suspects found");
 								}
 							}
 						} else {
 							AFKPGC.debug("Skipping ", playerUUID, " due to reprieve or immunity");
 						}
+					} else {
+						AFKPGC.debug("Skipping ", playerUUID, " due to insufficient location data");
 					}
+				} else {
+					AFKPGC.debug("Player ", playerUUID, " likely offline.");
 				}
 			}
 			Suspect thisRoundSuspect = null;
@@ -161,21 +167,35 @@ public class BotDetector implements Runnable {
 								 * adjusted to the tick. The long form of this would be:
 								 * (20/currentTPS) * (frequency/20) * 1000
 								 * The time is in ms */
-								banList.addBan(curSuspect.getName(),
+								BanEntry leBan = banList.addBan(curSuspect.getName(),
 										"You were suspected to cause lag and banned for "
-												+ bantime / 1000 + " seconds",
+												+ (bantime / 1000) + " seconds",
 												new Date(currentDate.getTime() + bantime), null);
+								Player p = Bukkit.getPlayer(curSuspect.getUUID());
+								if (p != null) {
+					   				p.kickPlayer(leBan.getReason());
+								}
 								// ban the player briefly and skip the other suspects.
 								AFKPGC.debug("Player ", curSuspect.getUUID(), " (", curSuspect.getName(),
-										") exceeded ban threshold with ", ls.getLagCompute());
+										") exceeded ban threshold with ", ls.getLagCompute(), " banned for",
+										bantime / 1000, " milliseconds");
 								break;
+							} else {
+								AFKPGC.debug("Player ", curSuspect.getUUID(), " (", curSuspect.getName(),
+										") cleared via insufficient lagsources [", ls.getLagCompute(), "]");
 							}
+						} else {
+							AFKPGC.debug("Player ", curSuspect.getUUID(), " (", curSuspect.getName(),
+									") cleared via bounding box [", truebot, "]");
 						}
 						// It passed the truebot(tm) detection -- for now. Give a temporary reprieve.
 						reprieve.put(curSuspect.getUUID(), maxReprieve);
 						AFKPGC.debug("Player ", curSuspect.getUUID(), " unlikely bot, given reprieve (bounds test ",
 								truebot, "): ", bounds);
-					} // else not enough info yet. Pass.
+					} else {
+						// else not enough info yet. Pass.
+						AFKPGC.debug("Player ", curSuspect.getUUID(), " Not enough bounds data, skip for now");
+					}
 				}
 			} else {
 				AFKPGC.debug("No suspects this round.");
@@ -191,15 +211,20 @@ public class BotDetector implements Runnable {
 						Date currentDate = new Date();
 						if (suspectedBotters.contains(lastRoundSuspect.getName())) {
 							if (longBans) {
-								banList.addBan( lastRoundSuspect.getName(),
+								BanEntry leBan = banList.addBan( lastRoundSuspect.getName(),
 										"Kicking you resulted in a noticeable TPS improvement, so you " +
 										"were banned until the TPS goes back to normal values.",
 										new Date(currentDate.getTime() + longBan),
 										null); // long ban.
+								Player p = Bukkit.getPlayer(lastRoundSuspect.getUUID());
+								if (p != null) {
+					   				p.kickPlayer(leBan.getReason());
+								}
 								bannedPlayers.add(lastRoundSuspect.getName());
 								addToBanfile(lastRoundSuspect.getName());
 								suspectedBotters.remove(lastRoundSuspect.getName());
-								AFKPGC.debug("Player ", lastRoundSuspect.getUUID(), " long banned, confirmed lag source.");
+								AFKPGC.debug("Player ", lastRoundSuspect.getUUID(), " long banned for ",
+										longBan," confirmed lag source.");
 							}
 							AFKPGC.logger.info("The player " + lastRoundSuspect.getName()
 									+ " causes lag and is a repeated offender, kicking him resulted"
@@ -221,6 +246,8 @@ public class BotDetector implements Runnable {
 				} else {
 					AFKPGC.debug("Player ", lastRoundSuspect.getUUID(), " was suspected but is immune.");
 				}
+			} else {
+				AFKPGC.debug("No prior suspects to evaluable.");
 			}
 
 			lastRoundTPS = currentTPS;

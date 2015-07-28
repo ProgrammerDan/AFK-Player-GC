@@ -77,7 +77,7 @@ public class LagScanner {
 		AFKPGC.debug("LagScanner completed centered on ", center, " found lag weight ", lagSum, " after scanning ",
 				chunksTested, " and ", (lagSource) ? "is ": "is not ", " a lag source");
 		AFKPGC.logger.info("Lag test centered on (" + center.getX() + ", " + center.getZ() + ") took " + 
-				(System.currentTimeMillis() - now) + " seconds");
+				(System.currentTimeMillis() - now) + " milliseconds");
 		if (callback != null) {
 			callback.callback(lagSource);
 		}

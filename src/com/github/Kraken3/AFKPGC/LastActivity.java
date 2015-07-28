@@ -15,7 +15,7 @@ import org.bukkit.Location;
 public class LastActivity{
 	public static Map<UUID, LastActivity> lastActivities = new TreeMap<UUID, LastActivity>();
 	public static long currentTime; 	//OCD compels me to save a few System.currentTimeMillis() calls..	
-	public LinkedList <Location> loggedLocations;
+	public LinkedList <Location> loggedLocations = new LinkedList<Location>();
 	public long timeOfLastActivity;
 	public long timeOfLastKickerPass; //time of the last Kicker.run call, relevant for warnings
 	public UUID playerName; //useful only in onCommandList
