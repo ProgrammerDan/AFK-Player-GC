@@ -58,10 +58,10 @@ lag_scanner:
     BANNER: 1
     BEACON: 5
     BREWING_STAND: 1
-    SPAWNER: 3
+    MOB_SPAWNER: 3
     DROPPER: 3
     JUKEBOX: 1
-    NOTEBLOCK: 1
+    NOTE_BLOCK: 1
     SIGN: 1
     HOPPER: 5
     DISPENSER: 3
