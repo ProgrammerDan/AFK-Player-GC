@@ -152,26 +152,5 @@ warnings:
 kick_message: §cYou §6were §ekicked §adue §9to in§5activity
 
 
-# Various strings. 
-
-Str0: "Pluging is not running"
-Str1: "AFK Player Garbage Collector has been enabled"
-Str2: "AFK Player Garbage Collector has been disabled"
-Str3: "§a%d players online: kicking after %sof being AFK"
-Str4: "§a%d-%d players online: kicking after %sof being AFK"
-Str5: "New configuration accepted, plugin enabled"
-Str6: "New configuration rejected, plugin disabled"
-Str7: "Plugin disabled"
-Str8: "List of %d most inactive players:"
-Str9: "%s last interacted on the server %sago"
-Str10: "Previously defined threshold getting redefined in %s"
-Str11: "Configuration file error: %s"
-Str12: "Configuration file incomplete - plugin doesn't know when to kick players when there are %d players online"
-Str13: "Error: Inconsistency in number of players detected"
-Str14: "%s kicked for being AFK for %s"
-Str15: "AFKPGC version: %s, the plugin is %s"
-Str16: "AFKPGC is alive"
-
-
 # Add player Account IDs (UUID) here to exempt them from the AFK checks
 immune_accounts: []
