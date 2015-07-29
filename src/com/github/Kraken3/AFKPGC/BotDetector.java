@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.TreeMap;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.bukkit.BanList;
 import org.bukkit.BanEntry;
@@ -32,20 +34,24 @@ public class BotDetector implements Runnable {
 	public static float currentTPS = 20;
 	public static float acceptableTPS;
 	public static float criticalTPSChange;
-	public static double relaxationFactor; // TODO
-	public static int maxLocations; // TODO
-	public static int maxSuspects; // TODO
-	public static int maxReprieve; // TODO
-	public static int minBaselineMovement; // TODO
-	public static long longBan; //TODO in milliseconds
-	public static int scanRadius; // TODO in chunks
-	public static BoundResultsConfiguration boundsConfig; // TODO
+	public static double relaxationFactor;
+	public static int maxLocations;
+	public static int maxSuspects;
+	public static int maxReprieve;
+	public static int minBaselineMovement;
+	public static long longBan;
+	public static int scanRadius;
+	public static BoundResultsConfiguration boundsConfig;
 	public static long frequency; // how often this runs in ticks
 	public static File banfile;
+	public static boolean kickNearby; // TODO addresses weakness of multiple people loading same lag machine
+	public static int releaseRounds; // TODO rounds of good TPS before release.
 	float lastRoundTPS;
 
 	TreeMap<Integer, Suspect> topSuspects;
 	HashMap<UUID, Integer> reprieve; // temp. cleared suspects
+
+	int goodRounds = 0;
 	
 	Suspect lastRoundSuspect = null;
 	
@@ -57,7 +63,29 @@ public class BotDetector implements Runnable {
 	// ban after names not ips
 	static BanList banList = AFKPGC.plugin.getServer().getBanList(BanList.Type.NAME);
 
+	/**
+	 * Careful, sailor. This is not threadsafe (TODO) so don't call this while BotDetector is in the run() loop.
+	 */
+	public void clearReprieves() {
+		reprieve.clear();
+	}
+
+	public Set<UUID> listReprieves() {
+		return reprieve.keySet();
+	}
+
 	public void run() {
+		currentTPS = TpsReader.getTPS();
+		doDetector();
+		AFKPGC.debug("Next detector invocation: ",
+				(long) ((double) BotDetector.frequency * (currentTPS / 20.0)),
+				" in ticks");
+		AFKPGC.plugin.getServer().getScheduler().scheduleSyncDelayedTask(
+				AFKPGC.plugin, this, 
+				(long) ((double) BotDetector.frequency * (currentTPS / 20.0)));
+	}
+
+	public synchronized void doDetector() {
 		if (topSuspects == null) {
 			topSuspects = new TreeMap<Integer, Suspect>();
 		}
@@ -79,6 +107,7 @@ public class BotDetector implements Runnable {
 		}
 
 		if (!AFKPGC.enabled) {
+			goodRounds = 0;
 			return;
 		}
 		
@@ -86,6 +115,7 @@ public class BotDetector implements Runnable {
 		AFKPGC.debug("Bot Detector Running, TPS is: ", currentTPS);
 		Map<UUID, LastActivity> lastActivities = LastActivity.lastActivities;
 		if (currentTPS < acceptableTPS) {
+			goodRounds = 0;
 			topSuspects.clear();
 			int smallestMovedDistance = minBaselineMovement;
 			// find new top suspects
@@ -214,10 +244,20 @@ public class BotDetector implements Runnable {
 								BanEntry leBan = banList.addBan( lastRoundSuspect.getName(),
 										"Kicking you resulted in a noticeable TPS improvement, so you " +
 										"were banned until the TPS goes back to normal values.",
-										new Date(currentDate.getTime() + longBan),
-										null); // long ban.
+										new Date(currentDate.getTime() + longBan), null); // long ban.
 								Player p = Bukkit.getPlayer(lastRoundSuspect.getUUID());
 								if (p != null) {
+									if (BotDetector.kickNearby) { // TODO, not implemented.
+										List<Player> nearby = getPlayersWithin(p, 16);
+
+										for (Player q : nearby) {
+											BanEntry qBan = banList.addBan(q.getName(), leBan.getReason(),
+													new Date(currentDate.getTime() + longBan), null);
+											q.kickPlayer(leBan.getReason());
+											AFKPGC.debug("Player ", q.getUniqueId(), " long banned for ",
+													longBan," confirmed lag source.");
+										}
+									}
 					   				p.kickPlayer(leBan.getReason());
 								}
 								bannedPlayers.add(lastRoundSuspect.getName());
@@ -253,15 +293,14 @@ public class BotDetector implements Runnable {
 			lastRoundTPS = currentTPS;
 			lastRoundSuspect = thisRoundSuspect;
 		} else { // TPS is high enough
-			// TODO: Evaluate if this makes sense. We should probably see if TPS stays good for a while
-			//       first, then clear bans. E.g. this sets or decrements a counter.
-			if (bannedPlayers.size() != 0) {
+			goodRounds ++;
+			if (goodRounds > releaseRounds && bannedPlayers.size() != 0) {
 				AFKPGC.debug("TPS has improved, removing bans");
 				freeEveryone(); // not everyone, but everyone banned by this plugin
 			}
 		}
-
 	}
+
 
 	public static void freeEveryone() {
 		for (int i = 0; i < bannedPlayers.size(); i++) {
@@ -284,6 +323,18 @@ public class BotDetector implements Runnable {
 							+ " to the banned players file");
 		}
 	}
+
+	public List<Player> getPlayersWithin(Player player, int distance) {
+		List<Player> res = new ArrayList<Player>();
+		int d2 = distance * distance;
+		for (Player p : Bukkit.getServer().getOnlinePlayers()) {
+			if (p.getWorld() == player.getWorld() && p.getLocation().distanceSquared(player.getLocation()) <= d2) {
+				res.add(p);
+			}
+		}
+		return res;
+	}
+
 
 	public static void parseBanlist() {
 		if (banfile == null && !banfile.exists()) {

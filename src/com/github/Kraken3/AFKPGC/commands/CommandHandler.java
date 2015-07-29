@@ -27,7 +27,8 @@ public class CommandHandler implements CommandExecutor {
 				new GetLongBans(plugin), new GetSuspectedPlayers(plugin),
 				new GetBannedPlayers(plugin), new Info(plugin),
 				new ListPlayers(plugin), new Reload(plugin), new Stop(plugin),
-				new Times(plugin) });
+				new Times(plugin), new ForceBotDetector(plugin),
+				new ClearAllReprieve(plugin), new ListAllReprieve(plugin) });
 	}
 
 	private void registerCommands(AbstractCommand[] abstractCommands) {

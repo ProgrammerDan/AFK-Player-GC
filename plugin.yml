@@ -67,6 +67,21 @@ commands:
       description: Lists the time after which players will be afk kicked depending on the amount of players online
       usage: /afkpgc times
       permission: AFKPGC.times
+   afkpgc forcebotdetector:
+      description: Attempts to force Bot Detector into running. This is not a terribly safe command. Try not to use it.
+      usage: /afkpgc forcebotdetector
+      aliases: fbd
+      permission: AFKPGC.execute
+   afkpgc clearallreprieve:
+      description: Clears any reprieves granted by Bot Detector. Currently not threadsafe, so be careful.
+      usage: /afkpgc clearallreprieve
+      aliases: car
+      permission: AFKPGC.execute
+   afkpgc listallreprieve:
+      description: Lists any reprieves granted by Bot Detector.
+      usage: /afkpgc listallreprieve
+      aliases: lar
+      permission: AFKPGC.execute
 permissions:
     AFKPGC.*:
       description: Gives access to all afkpgc commands
@@ -76,6 +91,7 @@ permissions:
         AFKPGC.times: true
         AFKPGC.readValues: true
         AFKPGC.configureValues: true
+        AFKPGC.execute: true
     AFKPGC.info:
       description: Allows you to use /afkpgc info 
       default: true
@@ -87,4 +103,7 @@ permissions:
       default: op
     AFKPGC.configureValues:
       description: Allows you to use /afkpgc setacceptabletps, /afkpgc setcriticaltpschange, /afkpgc setlongbans, /afkpgc stop and /afkpgc reload
+      default: op
+    AFKPGC.execute:
+      description: Allows you to use /afkpgc forcebotdetector, /afkpgc clearallreprieve, /afkpgc listallreprieve
       default: op

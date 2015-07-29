@@ -94,14 +94,16 @@ public class LastActivity{
 			lastBounds = newBounds;
 			return null;
 		} else {
+			double volumeDiff = Math.abs(newBounds.volume() - lastBounds.volume());
+			double surfaceDiff = Math.abs(newBounds.travelSurface() - lastBounds.travelSurface());
 			return new BoundResults(
 				newBounds.contains(lastBounds) || lastBounds.contains(newBounds),
 				newBounds.containsExcludesY(lastBounds) ||
 				lastBounds.containsExcludesY(newBounds),
-				newBounds.volume() * relaxFactor >= lastBounds.volume() ||
-				lastBounds.volume() * relaxFactor >= newBounds.volume(),
-				newBounds.travelSurface() * relaxFactor >= lastBounds.travelSurface() ||
-				lastBounds.travelSurface() * relaxFactor >= newBounds.travelSurface(),
+				volumeDiff <= lastBounds.volume() * relaxFactor ||
+				volumeDiff <= newBounds.volume() * relaxFactor,
+				surfaceDiff <= lastBounds.travelSurface() * relaxFactor ||
+				surfaceDiff <= newBounds.travelSurface() * relaxFactor,
 				newBounds.contains(lastBounds, relaxFactor) ||
 				lastBounds.contains(newBounds, relaxFactor),
 				newBounds.containsExcludesY(lastBounds, relaxFactor) ||

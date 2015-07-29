@@ -118,6 +118,8 @@ public class ConfigurationReader {
 		AFKPGC.debug("Max Suspects: ", BotDetector.maxSuspects);
 		BotDetector.maxReprieve = bd.getInt("max_reprieve");
 		AFKPGC.debug("Max Reprieve Rounds: ", BotDetector.maxReprieve);
+		BotDetector.releaseRounds = bd.getInt("release_rounds");
+		AFKPGC.debug("Rounds Before Release: ", BotDetector.releaseRounds);
 		BotDetector.minBaselineMovement = bd.getInt("min_baseline");
 		AFKPGC.debug("Min Baseline Movement to not be a bot: ", BotDetector.minBaselineMovement);
 		BotDetector.longBan = bd.getLong("ban_length");
