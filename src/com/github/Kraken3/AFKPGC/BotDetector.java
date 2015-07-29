@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.TreeMap;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.bukkit.BanList;
 import org.bukkit.BanEntry;
@@ -42,6 +44,7 @@ public class BotDetector implements Runnable {
 	public static BoundResultsConfiguration boundsConfig; // TODO
 	public static long frequency; // how often this runs in ticks
 	public static File banfile;
+	public static boolean kickNearby; // TODO addresses weakness of multiple people loading same lag machine
 	float lastRoundTPS;
 
 	TreeMap<Integer, Suspect> topSuspects;
@@ -79,6 +82,9 @@ public class BotDetector implements Runnable {
 		}
 
 		if (!AFKPGC.enabled) {
+			AFKPGC.plugin.getServer().getScheduler().scheduleSyncDelayedTask(
+					AFKPGC.plugin, this, 
+					(long) ((double) BotDetector.frequency * (currentTPS / 20.0)));
 			return;
 		}
 		
@@ -218,6 +224,18 @@ public class BotDetector implements Runnable {
 										null); // long ban.
 								Player p = Bukkit.getPlayer(lastRoundSuspect.getUUID());
 								if (p != null) {
+									if (BotDetector.kickNearby) { // TODO, not implemented.
+										List<Player> nearby = getPlayersWithin(p, 16);
+
+										for (Player q : nearby) {
+											BanEntry qBan = banList.addBan(q.getName(), leBan.getReason(),
+													new Date(currentDate.getTime() + longBan),
+													null);
+											q.kickPlayer(leBan.getReason());
+											AFKPGC.debug("Player ", q.getUniqueId(), " long banned for ",
+													longBan," confirmed lag source.");
+										}
+									}
 					   				p.kickPlayer(leBan.getReason());
 								}
 								bannedPlayers.add(lastRoundSuspect.getName());
@@ -260,7 +278,13 @@ public class BotDetector implements Runnable {
 				freeEveryone(); // not everyone, but everyone banned by this plugin
 			}
 		}
-
+		AFKPGC.debug("Next detector invocation: ",
+				(long) ((double) BotDetector.frequency * (currentTPS / 20.0)),
+				" in ticks");
+		
+		AFKPGC.plugin.getServer().getScheduler().scheduleSyncDelayedTask(
+				AFKPGC.plugin, this, 
+				(long) ((double) BotDetector.frequency * (currentTPS / 20.0)));
 	}
 
 	public static void freeEveryone() {
@@ -284,6 +308,18 @@ public class BotDetector implements Runnable {
 							+ " to the banned players file");
 		}
 	}
+
+	public List<Player> getPlayersWithin(Player player, int distance) {
+		List<Player> res = new ArrayList<Player>();
+		int d2 = distance * distance;
+		for (Player p : Bukkit.getServer().getOnlinePlayers()) {
+			if (p.getWorld() == player.getWorld() && p.getLocation().distanceSquared(player.getLocation()) <= d2) {
+				res.add(p);
+			}
+		}
+		return res;
+	}
+
 
 	public static void parseBanlist() {
 		if (banfile == null && !banfile.exists()) {

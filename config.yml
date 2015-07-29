@@ -19,10 +19,10 @@ bot_detector:
   acceptable_TPS: 17.5
   # critical_TPS_Change is the minimal change in TPS that needs to happen after kicking a player, 
   #   so he is marked as someone causing lag and his name is logged.
-  critical_TPS_Change: 0.5
+  critical_TPS_Change: 0.4
   # kicking_frequency is how often a player gets kicked and the TPS change monitored afterwards 
   #   in ticks
-  kicking_frequency: 1200
+  kicking_frequency: 900
   # Whether players get banned for a long time/ until the tick is high again
   long_bans: false
   # Length of long ban
@@ -34,12 +34,12 @@ bot_detector:
   # Baseline movement (in MC blocks) to be considered for bot detection
   min_baseline: 512
   # Maximum scan rounds to "ignore" a player who was previously cleared as a lag source
-  max_reprieve: 20
+  max_reprieve: 5
   # Scan radius in chunks around location, to check for lag causes
-  scan_radius: 2
+  scan_radius: 4
   # Configure the threshold and individual contribution of bound types
   bounds:
-    relaxation_factor: 1.05
+    relaxation_factor: 1.1
     threshold: 2.5
     contained: 1.5
     contained_exclude_y: 1.5
@@ -50,9 +50,9 @@ bot_detector:
 
 lag_scanner:
   # Length of time to cache individual chunk results
-  cache_timeout: 900000
+  cache_timeout: 9000
   # Summation threshold of entity and tile costs for lag flag
-  lag_threshold: 750
+  lag_threshold: 500
   # Per tickable block cost 
   tick_block:
     BANNER: 1
@@ -77,6 +77,8 @@ lag_scanner:
     DIODE_BLOCK_ON: 1
     PISTON_BASE: 2
     PISTON_STICKY_BASE: 2
+    PISTON_MOVING_PIECE: 5
+    PISTON_EXTENSION: 4
     POWERED_RAIL: 1
     REDSTONE_COMPARATOR: 1
     REDSTONE_COMPARATOR_OFF: 1
@@ -90,6 +92,9 @@ lag_scanner:
     SIGN_POST: 1
   # Per tickable entity cost
   tick_entity:
+    BAT: 1
+    FALLING_BLOCK: 3
+    DROPPED_ITEM: 1
     ARMOR_STAND: 1
     BOAT: 2
     CAVE_SPIDER: 1
