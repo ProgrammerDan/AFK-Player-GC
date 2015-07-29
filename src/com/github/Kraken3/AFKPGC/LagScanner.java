@@ -4,7 +4,9 @@ import org.bukkit.Location;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -63,6 +65,8 @@ public class LagScanner {
 					LagScanner.Result test = testChunk(chunkWorld.getChunkAt(x, z), now);
 					chunksTested ++;
 					lagSum += test.lagContrib;
+					AFKPGC.debug("Chunk ", x, ", ", z, " alone measures ", test.lagContrib, " lag sources.");
+					//TODO: aggregate and sum specific sources into debug message.
 
 					if (lagSum >= lagSourceThreshold) {
 						lagSource = true;
@@ -109,6 +113,7 @@ public class LagScanner {
 		} // else not cached
 
 		if (result == null) {
+			Map<String, Long> stats = new HashMap<String, Long>();
 			AFKPGC.debug("Chunk ", chunkId, " computing lag contribution");
 			// not in the cache, so let's compute.
 			long totalCost = 0L;
@@ -116,7 +121,14 @@ public class LagScanner {
 			// Test tiles
 			BlockState[] lagTiles = chunk.getTileEntities();
 			for (BlockState tile : lagTiles) {
-				totalCost += (long) LagCostConfig.getInstance().cost(tile.getType());
+				Material tiletype = tile.getType();
+				long tilecost = (long) LagCostConfig.getInstance().cost(tiletype);
+				totalCost += tilecost;
+				if (stats.containsKey(tiletype.name())) {
+					stats.put(tiletype.name(), tilecost + stats.get(tiletype.name()));
+				} else {
+					stats.put(tiletype.name(), tilecost);
+				}
 				if (totalCost >= lagSourceThreshold) {
 					AFKPGC.debug("Chunk ", chunkId, " passed source threshold just with tiles");
 					break; // if we cross the threshold, don't keep adding.
@@ -127,13 +139,27 @@ public class LagScanner {
 				// Test entities
 				Entity[] lagEntity = chunk.getEntities();
 				for (Entity entity : lagEntity) {
-					totalCost += (long) LagCostConfig.getInstance().cost(entity.getType());
+					EntityType enttype = entity.getType();
+					long entcost = (long) LagCostConfig.getInstance().cost(enttype);
+					totalCost += entcost;
+					if (stats.containsKey(enttype.name())) {
+						stats.put(enttype.name(), entcost + stats.get(enttype.name()));
+					} else {
+						stats.put(enttype.name(), entcost);
+					}
 					if (totalCost >= lagSourceThreshold) {
 						AFKPGC.debug("Chunk ", chunkId, " passed source threshold with tiles and entities");
 						break; // if we cross the threshold, don't keep adding.
 					}
 				}
 			}
+			StringBuffer sb = new StringBuffer();
+			for (Map.Entry<String, Long> stat : stats.entrySet()) {
+				sb.append(stat.getKey()).append(": ").append(stat.getValue())
+					.append("  ");
+			}
+
+			AFKPGC.debug("   ", sb);
 
 			// record the result.
 			result = new LagScanner.Result(world, chunkId, chunk.getX(), chunk.getZ(), totalCost, now);
