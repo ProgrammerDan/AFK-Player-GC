@@ -16,6 +16,7 @@ public class AFKPGC extends JavaPlugin {
 	public static boolean enabled = true;
 	public static Set<UUID> immuneAccounts;
 	public static boolean debug = false;
+	public static BotDetector detector; // TODO: Might regret this. Adding for now.
 
 	@Override
 	public void onEnable() {
@@ -47,8 +48,10 @@ public class AFKPGC extends JavaPlugin {
 					}
 				}, 0, 1L);
 
+		detector = new BotDetector();
+
 		getServer().getScheduler().scheduleSyncDelayedTask(this,
-				new BotDetector(), BotDetector.frequency);
+				detector, BotDetector.frequency);
 
 		// Because bukkit..
 		getServer().getScheduler().scheduleSyncRepeatingTask(this,
