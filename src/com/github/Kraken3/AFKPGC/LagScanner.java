@@ -107,17 +107,14 @@ public class LagScanner {
 			if (cachedResult.lastUpdate + cacheTimeout > now) {
 				// hasn't exceeded cache timeout, so use it.
 				result = cachedResult;
-				AFKPGC.debug("Chunk ", chunkId, " found in Cache");
 			} else {
 				// cache expired, remove.
 				worldCache.remove(chunkId);
-				AFKPGC.debug("Chunk ", chunkId, " expired out of Cache");
 			}
 		} // else not cached
 
 		if (result == null) {
 			Map<String, Long> stats = new HashMap<String, Long>();
-			AFKPGC.debug("Chunk ", chunkId, " computing lag contribution");
 			// not in the cache, so let's compute.
 			long totalCost = 0L;
 
@@ -132,8 +129,7 @@ public class LagScanner {
 				} else {
 					stats.put(tiletype.name(), tilecost);
 				}
-				if (totalCost >= lagSourceThreshold) {
-					AFKPGC.debug("Chunk ", chunkId, " passed source threshold just with tiles");
+				if (totalCost >= lagSourceThreshold && !fullScan) {
 					break; // if we cross the threshold, don't keep adding.
 				}
 			}
@@ -150,20 +146,11 @@ public class LagScanner {
 					} else {
 						stats.put(enttype.name(), entcost);
 					}
-					if (totalCost >= lagSourceThreshold) {
-						AFKPGC.debug("Chunk ", chunkId, " passed source threshold with tiles and entities");
+					if (totalCost >= lagSourceThreshold && !fullScan) {
 						break; // if we cross the threshold, don't keep adding.
 					}
 				}
 			}
-			StringBuffer sb = new StringBuffer();
-			for (Map.Entry<String, Long> stat : stats.entrySet()) {
-				sb.append(stat.getKey()).append(": ").append(stat.getValue())
-					.append("  ");
-			}
-
-			AFKPGC.debug("   ", sb);
-
 			// record the result.
 			result = new LagScanner.Result(world, chunkId, chunk.getX(), chunk.getZ(), totalCost, now);
 			worldCache.put(chunkId, result);
