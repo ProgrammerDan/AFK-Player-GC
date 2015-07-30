@@ -57,6 +57,11 @@ lag_scanner:
   cache_timeout: 90000
   # Summation threshold of entity and tile costs for lag flag
   lag_threshold: 500
+  # Multiplier of the lag threshold that needs to be exceeded to be banned right away
+  extreme_lag_threshold_multiplier: 2
+  # Whether the lag scanner should keep scanning if it already determined someone is causing lag
+  # to get an exact value how much lag the player is causing
+  full_scan: true
   # Per tickable block cost 
   tick_block:
     BANNER: 1

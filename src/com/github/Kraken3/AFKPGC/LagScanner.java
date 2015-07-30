@@ -24,6 +24,8 @@ public class LagScanner {
 
 	public static long cacheTimeout;
 	public static long lagSourceThreshold;
+	public static long extremelagSourceThreshold;
+	public static boolean fullScan;
 
 	private Location center;
 	private Integer radius;
@@ -70,7 +72,8 @@ public class LagScanner {
 
 					if (lagSum >= lagSourceThreshold) {
 						lagSource = true;
-						break;
+						if (!fullScan) {
+						break; }
 					}
 				}
 			}
@@ -170,6 +173,13 @@ public class LagScanner {
 
 	public boolean isLagSource() {
 		return (isLagSource == null) ? false : isLagSource;
+	}
+	
+	public boolean isExtremeLagSource() {
+		if (lagCompute!=null && lagCompute > extremelagSourceThreshold) {
+			return true;
+		}
+		return false;
 	}
 	
 	public long getLagCompute() {
