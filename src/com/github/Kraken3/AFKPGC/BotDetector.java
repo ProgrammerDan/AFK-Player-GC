@@ -63,6 +63,17 @@ public class BotDetector implements Runnable {
 	// ban after names not ips
 	static BanList banList = AFKPGC.plugin.getServer().getBanList(BanList.Type.NAME);
 
+	/**
+	 * Careful, sailor. This is not threadsafe (TODO) so don't call this while BotDetector is in the run() loop.
+	 */
+	public void clearReprieves() {
+		reprieve.clear();
+	}
+
+	public Set<UUID> listReprieves() {
+		return reprieve.keySet();
+	}
+
 	public void run() {
 		currentTPS = TpsReader.getTPS();
 		doDetector();
