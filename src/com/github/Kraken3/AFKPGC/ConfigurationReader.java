@@ -104,6 +104,8 @@ public class ConfigurationReader {
 
 		ConfigurationSection bd = conf.getConfigurationSection("bot_detector");
 		//BotDetector
+		BotDetector.observationMode = bd.getBoolean("observation_mode");
+		AFKPGC.debug("Observation mode: ", BotDetector.observationMode);
 		BotDetector.acceptableTPS = (float) bd.getDouble("acceptable_TPS");
 		AFKPGC.debug("Acceptable TPS: ", BotDetector.acceptableTPS);
 		BotDetector.criticalTPSChange = (float) bd.getDouble("critical_TPS_Change");

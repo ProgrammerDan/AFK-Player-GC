@@ -45,6 +45,7 @@ public class BotDetector implements Runnable {
 	public static long frequency; // how often this runs in ticks
 	public static File banfile;
 	public static boolean kickNearby; // TODO addresses weakness of multiple people loading same lag machine
+	public static boolean observationMode;
 	public static int releaseRounds; // TODO rounds of good TPS before release.
 	float lastRoundTPS;
 
@@ -179,6 +180,7 @@ public class BotDetector implements Runnable {
 							ls.run(); // TODO: move this and ban results to thread.
 							if (ls.isLagSource()) {
 								thisRoundSuspect = curSuspect;
+								if (!observationMode) {
 								Date currentDate = new Date();
 								long bantime = (long) (frequency / currentTPS * 1000);
 								/* Because the ban time is based on real time and the next run
@@ -198,7 +200,7 @@ public class BotDetector implements Runnable {
 								AFKPGC.debug("Player ", curSuspect.getUUID(), " (", curSuspect.getName(),
 										") exceeded ban threshold with ", ls.getLagCompute(), " banned for",
 										bantime / 1000, " milliseconds");
-								break;
+								break; }
 							} else {
 								AFKPGC.debug("Player ", curSuspect.getUUID(), " (", curSuspect.getName(),
 										") cleared via insufficient lagsources [", ls.getLagCompute(), "]");
@@ -220,7 +222,7 @@ public class BotDetector implements Runnable {
 				AFKPGC.debug("No suspects this round.");
 			}
 
-			if (lastRoundSuspect != null) {
+			if (lastRoundSuspect != null && !observationMode) {
 				// TODO: This is starting to stink of synchronization issues. We shouldn't need
 				//       to check immune so often within the same compute round.
 				if (!AFKPGC.immuneAccounts.contains(lastRoundSuspect.getUUID())) {
