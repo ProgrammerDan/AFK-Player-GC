@@ -104,6 +104,8 @@ public class ConfigurationReader {
 
 		ConfigurationSection bd = conf.getConfigurationSection("bot_detector");
 		//BotDetector
+		BotDetector.observationMode = bd.getBoolean("observation_mode");
+		AFKPGC.debug("Observation mode: ", BotDetector.observationMode);
 		BotDetector.acceptableTPS = (float) bd.getDouble("acceptable_TPS");
 		AFKPGC.debug("Acceptable TPS: ", BotDetector.acceptableTPS);
 		BotDetector.criticalTPSChange = (float) bd.getDouble("critical_TPS_Change");
@@ -156,10 +158,16 @@ public class ConfigurationReader {
 
 		ConfigurationSection ls = conf.getConfigurationSection("lag_scanner");
 		//LagScanner
+		LagScanner.fullScan = ls.getBoolean("full_scan");
+		AFKPGC.debug("LagScanner Full scans: ",LagScanner.fullScan);
 		LagScanner.cacheTimeout = ls.getLong("cache_timeout");
 		AFKPGC.debug("LagScanner Cache Timeout: ", LagScanner.cacheTimeout);
 		LagScanner.lagSourceThreshold = ls.getLong("lag_threshold");
 		AFKPGC.debug("LagScanner Source Threshold: ", LagScanner.lagSourceThreshold);
+		LagScanner.extremelagSourceThreshold = (long) (LagScanner.lagSourceThreshold * ls.getDouble(
+				"extreme_lag_threshold_multiplier"));
+		AFKPGC.debug("Lagscanner Extreme Lag Source Threshold: ",LagScanner.extremelagSourceThreshold);
+		
 
 		LagCostConfig.getInstance().clearCosts(); // TODO: change to get lock
 		ConfigurationSection lstb = ls.getConfigurationSection("tick_block");
