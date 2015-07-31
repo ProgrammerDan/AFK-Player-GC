@@ -152,12 +152,11 @@ public class LagScanner {
 					for (Map.Entry<String, Long> stat : stats.entrySet()) {
 						sb.append(stat.getKey()).append(": ").append(stat.getValue())
 							.append("  ");
-					}	
-				AFKPGC.debug("   ", sb);				
+					}				
 			// record the result.
 			result = new LagScanner.Result(world, chunkId, chunk.getX(), chunk.getZ(), totalCost, now);
 			worldCache.put(chunkId, result);
-			AFKPGC.debug("Chunk ", chunk.getX(), ", ", chunk.getZ(), " alone measures ", result.lagContrib, " lag sources.");
+			AFKPGC.debug("      ",sb,"; Chunk ", chunk.getX(), ", ", chunk.getZ(), " alone measures ", result.lagContrib, " lag sources.");
 		}
 		else {
 			AFKPGC.debug("The chunk ",chunkId,"was loaded from the cache with a value of",result.lagContrib);
