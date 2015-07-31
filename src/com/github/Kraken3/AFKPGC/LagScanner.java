@@ -24,7 +24,9 @@ public class LagScanner {
 
 	public static long cacheTimeout;
 	public static long lagSourceThreshold;
-	public static long extremelagSourceThreshold;
+	public static long extremeLagSourceThreshold;
+	public static long unloadThreshold;
+	public static boolean performUnload;
 	public static boolean fullScan;
 
 	private Location center;
@@ -69,7 +71,7 @@ public class LagScanner {
 					lagSum += test.lagContrib;
 					if (lagSum >= lagSourceThreshold) {
 						lagSource = true;
-						if (!fullScan) {
+						if (!fullScan && lagSum >= extremeLagSourceThreshold) {
 							break;
 						}
 					}
@@ -84,6 +86,38 @@ public class LagScanner {
 				chunksTested, " and ", (lagSource) ? "is ": "is not ", "a lag source");
 		if (callback != null) {
 			callback.callback(lagSource);
+		}
+	}
+
+	/**
+	 * Uses the cached results exclusively to determine the worst offender chunks to
+	 * unload immediately.
+	 */
+	public static void unloadChunks(Location center, int radius) {
+		if (!performUnload) {
+			return;
+		}
+		Chunk originChunk = center.getChunk();
+		World chunkWorld = originChunk.getWorld();
+		int oX = originChunk.getX();
+		int oZ = originChunk.getZ();
+		String world = chunkWorld.getName();
+
+		Map<Long, LagScanner.Result> lcache = LagScanner.cache.get(world);
+		if (cache == null) {
+			return;
+		}
+		for (int x = oX - radius; x <= oX + radius; x++) {
+			for (int z = oZ - radius; z <= oZ + radius; z++) {
+				long chunkId = (long) x << 32L + (long) z;
+				LagScanner.Result result = lcache.get(chunkId);
+				if (result != null && result.lagContrib >= unloadThreshold) {
+					Chunk nC = chunkWorld.getChunkAt(x, z);
+					if (nC != null) {
+						nC.unload(true, true);
+					}
+				}
+			}
 		}
 	}
 
@@ -112,6 +146,7 @@ public class LagScanner {
 
 		if (result == null) {
 			Map<String, Long> stats = new HashMap<String, Long>();
+			Map<String, Integer> statCount = new HashMap<String, Integer>();
 			// not in the cache, so let's compute.
 			long totalCost = 0L;
 
@@ -123,10 +158,12 @@ public class LagScanner {
 				totalCost += tilecost;
 				if (stats.containsKey(tiletype.name())) {
 					stats.put(tiletype.name(), tilecost + stats.get(tiletype.name()));
+					statCount.put(tiletype.name(), 1 + statCount.get(tiletype.name()));
 				} else {
 					stats.put(tiletype.name(), tilecost);
+					statCount.put(tiletype.name(), 1);
 				}
-				if (totalCost >= lagSourceThreshold && !fullScan) {
+				if (totalCost >= extremeLagSourceThreshold && !fullScan) {
 					break; // if we cross the threshold, don't keep adding.
 				}
 			}
@@ -140,25 +177,28 @@ public class LagScanner {
 					totalCost += entcost;
 					if (stats.containsKey(enttype.name())) {
 						stats.put(enttype.name(), entcost + stats.get(enttype.name()));
+						statCount.put(enttype.name(), 1 + statCount.get(enttype.name()));
 					} else {
 						stats.put(enttype.name(), entcost);
+						statCount.put(enttype.name(), 1);
 					}
-					if (totalCost >= lagSourceThreshold && !fullScan) {
+					if (totalCost >= extremeLagSourceThreshold && !fullScan) {
 						break; // if we cross the threshold, don't keep adding.
 					}
 				}
 			}
 			StringBuffer sb = new StringBuffer();
 			for (Map.Entry<String, Long> stat : stats.entrySet()) {
-				sb.append(stat.getKey()).append(": ").append(stat.getValue()).append("  ");
+				sb.append(stat.getKey()).append("[").append(statCount.get(stat.getKey()))
+						.append("]: ").append(stat.getValue()).append("  ");
 			}				
 			// record the result.
 			result = new LagScanner.Result(world, chunkId, chunk.getX(), chunk.getZ(), totalCost, now);
 			worldCache.put(chunkId, result);
-			AFKPGC.debug("The chunk ", chunk.getX(), ", ", chunk.getZ(), " alone measures ", result.lagContrib, " lag sources, details: ", sb);
+			AFKPGC.debug("The chunk ", chunk.getX(), ", ", chunk.getZ(), " measures ", result.lagContrib, " lag sources, details: ", sb);
 		}
 		else {
-			AFKPGC.debug("The chunk ", chunk.getX(), ", ", chunk.getZ(), " was loaded from the cache with a value of ",result.lagContrib);
+			AFKPGC.debug("The chunk ", chunk.getX(), ", ", chunk.getZ(), " was loaded from the cache with a measure of ", result.lagContrib, " lag sources");
 		}
 		return result;
 	}
@@ -168,7 +208,7 @@ public class LagScanner {
 	}
 	
 	public boolean isExtremeLagSource() {
-		if (lagCompute!=null && lagCompute > extremelagSourceThreshold) {
+		if (lagCompute != null && lagCompute >= extremeLagSourceThreshold) {
 			return true;
 		}
 		return false;
