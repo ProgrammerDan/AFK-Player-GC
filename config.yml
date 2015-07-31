@@ -19,10 +19,10 @@ bot_detector:
   acceptable_TPS: 17.5
   # critical_TPS_Change is the minimal change in TPS that needs to happen after kicking a player, 
   #   so he is marked as someone causing lag and his name is logged.
-  critical_TPS_Change: 0.4
+  critical_TPS_Change: 0.3
   # kicking_frequency is how often a player gets kicked and the TPS change monitored afterwards 
   #   in ticks
-  kicking_frequency: 900
+  kicking_frequency: 1800
   # Whether players get banned for a long time/ until the tick is high again
   long_bans: false
   # Completely disables banning for testing and debugging purposes
@@ -30,17 +30,21 @@ bot_detector:
   # Length of long ban
   ban_length: 21600000
   # Max locations per player to store while measuring movement patterns
-  max_locations: 5
+  max_locations: 8
   # Max suspects to consider per Detector round
   max_suspects: 10
   # Baseline movement (in MC blocks) to be considered for bot detection
   min_baseline: 512
   # Maximum scan rounds to "ignore" a player who was previously cleared as a lag source
-  max_reprieve: 5
+  max_reprieve: 10
   # Number of BotDetector rounds at good TPS before releasing lag offenders
-  release_rounds: 15
+  release_rounds: 20
   # Scan radius in chunks around location, to check for lag causes
   scan_radius: 4
+  # Kick players very close to high-profile lag sources
+  kick_nearby: true
+  # Radius to consider if kicking nearby players
+  kick_nearby_radius: 16
   # Configure the threshold and individual contribution of bound types
   bounds:
     relaxation_factor: 0.1
@@ -54,11 +58,15 @@ bot_detector:
 
 lag_scanner:
   # Length of time to cache individual chunk results (in milliseconds)
-  cache_timeout: 90000
+  cache_timeout: 1800000
   # Summation threshold of entity and tile costs for lag flag
-  lag_threshold: 500
+  lag_threshold: 400
   # Multiplier of the lag threshold that needs to be exceeded to be banned right away
-  extreme_lag_threshold_multiplier: 2
+  extreme_lag_threshold_multiplier: 2.5
+  # Reduction Factor (threshold * unload should be < threshold) that must be exceeded to attempt to force unload chunks
+  unload_threshold_factor: .25
+  # Flag indicating if chunk force unloading on kick should be active
+  perform_unload: true
   # Whether the lag scanner should keep scanning if it already determined someone is causing lag
   # to get an exact value how much lag the player is causing
   full_scan: true
@@ -72,7 +80,7 @@ lag_scanner:
     JUKEBOX: 1
     NOTE_BLOCK: 1
     SIGN: 1
-    HOPPER: 5
+    HOPPER: 8
     DISPENSER: 3
     FURNACE: 3
     BURNING_FURNACE: 4
@@ -86,7 +94,7 @@ lag_scanner:
     DIODE_BLOCK_ON: 1
     PISTON_BASE: 2
     PISTON_STICKY_BASE: 2
-    PISTON_MOVING_PIECE: 5
+    PISTON_MOVING_PIECE: 8
     PISTON_EXTENSION: 4
     POWERED_RAIL: 1
     REDSTONE_COMPARATOR: 1
@@ -102,7 +110,7 @@ lag_scanner:
   # Per tickable entity cost
   tick_entity:
     BAT: 1
-    FALLING_BLOCK: 3
+    FALLING_BLOCK: 4
     DROPPED_ITEM: 1
     ARMOR_STAND: 1
     BOAT: 2

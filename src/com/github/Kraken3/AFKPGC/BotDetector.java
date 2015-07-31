@@ -45,8 +45,9 @@ public class BotDetector implements Runnable {
 	public static long frequency; // how often this runs in ticks
 	public static File banfile;
 	public static boolean kickNearby; // TODO addresses weakness of multiple people loading same lag machine
+	public static int kickNearbyRadius; // TODO
 	public static boolean observationMode;
-	public static int releaseRounds; // TODO rounds of good TPS before release.
+	public static int releaseRounds;
 	float lastRoundTPS;
 
 	TreeMap<Integer, Suspect> topSuspects;
@@ -178,8 +179,8 @@ public class BotDetector implements Runnable {
 
 						if (truebot >= boundsConfig.getThreshold()) {
 							// Its movement looks botlike.
-							AFKPGC.debug("Player ", curSuspect.getUUID(), " looks like a bot (bounds test ", 
-									truebot, "): ", bounds);
+							AFKPGC.debug("Player ", curSuspect.getUUID(), " (", curSuspect.getName(), 
+									") looks like a bot (bounds test ", truebot, "): ", bounds);
 
 							// Now test surrounding area.
 							Location point = curSuspect.getLocation();
@@ -192,11 +193,11 @@ public class BotDetector implements Runnable {
 									if (!observationMode) {
 										giveOutLongBan(curSuspect);
 									}
-									AFKPGC.debug("Player ", curSuspect.getName(), " is an extreme lag source ",
-											"with a lag compute of ", ls.getLagCompute());
+									AFKPGC.debug("Player ", curSuspect.getUUID(), " (", curSuspect.getName(), 
+											") is an extreme lag source with a lag compute of ", ls.getLagCompute());
 								} else {
 									Date currentDate = new Date();
-									long bantime = (long) (frequency / currentTPS * 1000);
+									long bantime = (long) (frequency / currentTPS * 1000.0);
 									/* Because the ban time is based on real time and the next run
 									 * of this method is based on the tick, the ban time needs to be
 									 * adjusted to the tick. The long form of this would be:
@@ -209,6 +210,19 @@ public class BotDetector implements Runnable {
 														new Date(currentDate.getTime() + bantime), null);
 										Player p = Bukkit.getPlayer(curSuspect.getUUID());
 										if (p != null) {
+											if (BotDetector.kickNearby) {
+												List<Player> nearby = getPlayersWithin(p, BotDetector.kickNearbyRadius);
+
+												for (Player q : nearby) {
+													BanEntry qBan = banList.addBan(q.getName(), leBan.getReason(),
+															new Date(currentDate.getTime() + bantime), null);
+													q.kickPlayer(leBan.getReason());
+													AFKPGC.debug("Player ", q.getUniqueId(), " (", q.getName(),
+															") short banned for ", bantime / 1000, 
+															" seconds for being nearby lag source.");
+												}
+											}
+											LagScanner.unloadChunks(p.getLocation(), scanRadius);
 											p.kickPlayer(leBan.getReason());
 										}
 										AFKPGC.debug("Player ", curSuspect.getUUID(), " (", curSuspect.getName(),
@@ -234,7 +248,7 @@ public class BotDetector implements Runnable {
 						reprieve.put(curSuspect.getUUID(), maxReprieve);
 					} else {
 						// else not enough info yet. Pass.
-						AFKPGC.debug("Player ", curSuspect.getUUID(), " suspected due to movement "
+						AFKPGC.debug("Player ", curSuspect.getUUID(), " suspected due to movement ",
 								" but not enough bounds data, skip this round.");
 					}
 				}
@@ -254,7 +268,7 @@ public class BotDetector implements Runnable {
 								giveOutLongBan(lastRoundSuspect);
 							}
 							AFKPGC.logger.info("The player " + lastRoundSuspect.getUUID() + " (" +
-									lastRoundSuspect.getName() + ")" +
+									lastRoundSuspect.getName() + ")"
 									+ " causes lag and is a repeated offender, kicking him resulted"
 									+ " in a TPS improvement of " + String.valueOf(currentTPS - lastRoundTPS)
 									+ " at the location " + lastRoundSuspect.getLocation().toString());
@@ -262,7 +276,7 @@ public class BotDetector implements Runnable {
 						} else {
 							suspectedBotters.add(lastRoundSuspect.getName());
 							AFKPGC.logger.info( "The player " + lastRoundSuspect.getUUID() + " (" +
-									lastRoundSuspect.getName() + ")" +
+									lastRoundSuspect.getName() + ")"
 									+ " is suspected to cause lag, kicking him resulted in a TPS improvement of "
 									+ String.valueOf(currentTPS - lastRoundTPS) + " at the location "
 									+ lastRoundSuspect.getLocation().toString());
@@ -331,8 +345,8 @@ public class BotDetector implements Runnable {
 				new Date(currentDate.getTime() + longBan), null); // long ban.
     	Player p = Bukkit.getPlayer(s.getUUID());
 	    if (p != null) {
-	    	if (BotDetector.kickNearby) { // TODO, not implemented.
-			    List<Player> nearby = getPlayersWithin(p, 16);
+	    	if (BotDetector.kickNearby) {
+			    List<Player> nearby = getPlayersWithin(p, BotDetector.kickNearbyRadius);
 
 			    for (Player q : nearby) {
 			    	BanEntry qBan = banList.addBan(q.getName(), leBan.getReason(),
@@ -342,6 +356,7 @@ public class BotDetector implements Runnable {
 						    longBan," confirmed nearby lag source.");
 			    }
 	    	}
+			LagScanner.unloadChunks(p.getLocation(), scanRadius);
 			p.kickPlayer(leBan.getReason());
 		}
 		bannedPlayers.add(s.getName());

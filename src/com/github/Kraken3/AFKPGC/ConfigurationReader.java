@@ -128,6 +128,10 @@ public class ConfigurationReader {
 		AFKPGC.debug("Long Ban Length: ", BotDetector.longBan);
 		BotDetector.scanRadius = bd.getInt("scan_radius");
 		AFKPGC.debug("Impact Scan Radius: ", BotDetector.scanRadius);
+		BotDetector.kickNearby = bd.getBoolean("kick_nearby");
+		AFKPGC.debug("Kick Nearby: ", BotDetector.kickNearby);
+		BotDetector.kickNearbyRadius = bd.getInt("kick_nearby_radius");
+		AFKPGC.debug("Kick Nearby Radius: ", BotDetector.kickNearbyRadius);
 		ConfigurationSection bdbc = bd.getConfigurationSection("bounds");
 		//BotDetector Bounds Configuration
 		BotDetector.relaxationFactor = bdbc.getDouble("relaxation_factor");
@@ -164,9 +168,14 @@ public class ConfigurationReader {
 		AFKPGC.debug("LagScanner Cache Timeout: ", LagScanner.cacheTimeout);
 		LagScanner.lagSourceThreshold = ls.getLong("lag_threshold");
 		AFKPGC.debug("LagScanner Source Threshold: ", LagScanner.lagSourceThreshold);
-		LagScanner.extremelagSourceThreshold = (long) (LagScanner.lagSourceThreshold * ls.getDouble(
-				"extreme_lag_threshold_multiplier"));
-		AFKPGC.debug("Lagscanner Extreme Lag Source Threshold: ",LagScanner.extremelagSourceThreshold);
+		LagScanner.extremeLagSourceThreshold = (long) (LagScanner.lagSourceThreshold 
+				* ls.getDouble("extreme_lag_threshold_multiplier"));
+		AFKPGC.debug("LagScanner Extreme Lag Source Threshold: ",LagScanner.extremeLagSourceThreshold);
+		LagScanner.unloadThreshold = (long) (LagScanner.lagSourceThreshold 
+				* ls.getDouble("unload_threshold_factor"));
+		AFKPGC.debug("LagScanner Chunk Unload Threshold: ",LagScanner.unloadThreshold);
+		LagScanner.performUnload = ls.getBoolean("perform_unload");
+		AFKPGC.debug("LagScanner Perform Chunk Unload: ", LagScanner.performUnload);
 		
 
 		LagCostConfig.getInstance().clearCosts(); // TODO: change to get lock
