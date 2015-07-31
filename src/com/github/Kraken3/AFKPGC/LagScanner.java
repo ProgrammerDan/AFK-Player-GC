@@ -70,7 +70,8 @@ public class LagScanner {
 					if (lagSum >= lagSourceThreshold) {
 						lagSource = true;
 						if (!fullScan) {
-						break; }
+							break;
+						}
 					}
 				}
 			}
@@ -78,10 +79,9 @@ public class LagScanner {
 
 		this.isLagSource = lagSource;
 		this.lagCompute = lagSum;
-		AFKPGC.debug("LagScanner completed centered on ", center, " found lag weight ", lagSum, " after scanning ",
-				chunksTested, " and ", (lagSource) ? "is ": "is not ", " a lag source");
-		AFKPGC.logger.info("Lag test centered on (" + center.getX() + ", " + center.getZ() + ") took " + 
-				(System.currentTimeMillis() - now) + " milliseconds");
+		AFKPGC.debug("LagScanner completed in ", (System.currentTimeMillis() - now), "ms centered on ", 
+				center, " found lag weight ", lagSum, " after scanning ",
+				chunksTested, " and ", (lagSource) ? "is ": "is not ", "a lag source");
 		if (callback != null) {
 			callback.callback(lagSource);
 		}
@@ -149,17 +149,16 @@ public class LagScanner {
 				}
 			}
 			StringBuffer sb = new StringBuffer();
-					for (Map.Entry<String, Long> stat : stats.entrySet()) {
-						sb.append(stat.getKey()).append(": ").append(stat.getValue())
-							.append("  ");
-					}				
+			for (Map.Entry<String, Long> stat : stats.entrySet()) {
+				sb.append(stat.getKey()).append(": ").append(stat.getValue()).append("  ");
+			}				
 			// record the result.
 			result = new LagScanner.Result(world, chunkId, chunk.getX(), chunk.getZ(), totalCost, now);
 			worldCache.put(chunkId, result);
-			AFKPGC.debug("      ",sb,"; Chunk ", chunk.getX(), ", ", chunk.getZ(), " alone measures ", result.lagContrib, " lag sources.");
+			AFKPGC.debug("The chunk ", chunk.getX(), ", ", chunk.getZ(), " alone measures ", result.lagContrib, " lag sources, details: ", sb);
 		}
 		else {
-			AFKPGC.debug("The chunk ",chunkId,"was loaded from the cache with a value of",result.lagContrib);
+			AFKPGC.debug("The chunk ", chunk.getX(), ", ", chunk.getZ(), " was loaded from the cache with a value of ",result.lagContrib);
 		}
 		return result;
 	}
