@@ -192,8 +192,8 @@ public class BotDetector implements Runnable {
 									if (!observationMode) {
 										giveOutLongBan(curSuspect);
 									}
-									AFKPGC.debug("Player ", curSuspect.getName(), " is an extreme lag source "+
-											"with a lag compute of ",ls.getLagCompute());
+									AFKPGC.debug("Player ", curSuspect.getName(), " is an extreme lag source ",
+											"with a lag compute of ", ls.getLagCompute());
 								} else {
 									Date currentDate = new Date();
 									long bantime = (long) (frequency / currentTPS * 1000);
@@ -211,11 +211,15 @@ public class BotDetector implements Runnable {
 										if (p != null) {
 											p.kickPlayer(leBan.getReason());
 										}
+										AFKPGC.debug("Player ", curSuspect.getUUID(), " (", curSuspect.getName(),
+												") exceeded ban threshold with ", ls.getLagCompute(), " banned for",
+												bantime / 1000, " seconds");
+									} else {
+										AFKPGC.debug("Player ", curSuspect.getUUID(), " (", curSuspect.getName(),
+												") exceeded ban threshold with ", ls.getLagCompute());
 									}
+
 									// ban the player briefly and skip the other suspects.
-									AFKPGC.debug("Player ", curSuspect.getUUID(), " (", curSuspect.getName(),
-											") exceeded ban threshold with ", ls.getLagCompute(), " banned for",
-											bantime / 1000, " milliseconds");
 									break;
 								}
 							} else {
@@ -324,7 +328,7 @@ public class BotDetector implements Runnable {
     	BanEntry leBan = banList.addBan( s.getName(),
 	    		"Kicking you resulted in a noticeable TPS improvement, so you " +
 				"were banned until the TPS goes back to normal values.",
-			   new Date(currentDate.getTime() + longBan), null); // long ban.
+				new Date(currentDate.getTime() + longBan), null); // long ban.
     	Player p = Bukkit.getPlayer(s.getUUID());
 	    if (p != null) {
 	    	if (BotDetector.kickNearby) { // TODO, not implemented.
@@ -334,8 +338,8 @@ public class BotDetector implements Runnable {
 			    	BanEntry qBan = banList.addBan(q.getName(), leBan.getReason(),
 						    new Date(currentDate.getTime() + longBan), null);
 				    q.kickPlayer(leBan.getReason());
-				    AFKPGC.debug("Player ", q.getUniqueId(), " long banned for ",
-						    longBan," confirmed lag source.");
+				    AFKPGC.debug("Player ", q.getUniqueId(), " (", q.getName(), ") long banned for ",
+						    longBan," confirmed nearby lag source.");
 			    }
 	    	}
 			p.kickPlayer(leBan.getReason());
@@ -343,7 +347,7 @@ public class BotDetector implements Runnable {
 		bannedPlayers.add(s.getName());
 		addToBanfile(s.getName());
 		suspectedBotters.remove(s.getName());
-		AFKPGC.debug("Player ", s.getUUID(), " long banned for ",
+		AFKPGC.debug("Player ", s.getUUID(), " (", s.getName(), ") long banned for ",
 				longBan," confirmed lag source.");
 	}
 
