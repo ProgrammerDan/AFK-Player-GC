@@ -59,8 +59,8 @@ public class LagScanner {
 		int chunksTested = 0;
 
 		// radius in minecraft is square.
-		for (int r = 0; r <= radius && !lagSource; r++) {
-			for (int x = oX - r; x <= oX + r && !lagSource; x++) {
+		for (int r = 0; r <= radius && (fullScan || lagSum < extremeLagSourceThreshold); r++) {
+			for (int x = oX - r; x <= oX + r && (fullScan || lagSum < extremeLagSourceThreshold); x++) {
 				for (int z = oZ - r; z <= oZ + r; z++) {
 					if (x > oX - r && x < oX + r &&
 						z > oZ - r && z < oZ + r) {
@@ -104,9 +104,10 @@ public class LagScanner {
 		String world = chunkWorld.getName();
 
 		Map<Long, LagScanner.Result> lcache = LagScanner.cache.get(world);
-		if (cache == null) {
+		if (lcache == null) {
 			return;
 		}
+		AFKPGC.debug("Attempting to unload laggiest chunks");
 		for (int x = oX - radius; x <= oX + radius; x++) {
 			for (int z = oZ - radius; z <= oZ + radius; z++) {
 				long chunkId = (long) x << 32L + (long) z;
