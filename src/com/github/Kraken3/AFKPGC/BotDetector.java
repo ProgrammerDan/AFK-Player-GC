@@ -33,6 +33,7 @@ public class BotDetector implements Runnable {
 	public static boolean longBans;
 	public static float currentTPS = 20;
 	public static float acceptableTPS;
+	public static float startingTPS;
 	public static float criticalTPSChange;
 	public static double relaxationFactor;
 	public static int maxLocations;
@@ -115,6 +116,21 @@ public class BotDetector implements Runnable {
 		currentTPS = TpsReader.getTPS();
 		AFKPGC.debug("Bot Detector Running, TPS is: ", currentTPS);
 		Map<UUID, LastActivity> lastActivities = LastActivity.lastActivities;
+		if (currentTPS < startingTPS) {
+			for (Map.Entry<UUID, LastActivity> entry : lastActivities.entrySet()) {
+				UUID playerUUID = entry.getKey();
+				Player p = Bukkit.getPlayer(playerUUID);
+				if (lastActivities.containsKey(playerUUID) && p != null) {
+					LastActivity la = entry.getValue();
+					la.loggedLocations.add(p.getLocation());
+					if (la.loggedLocations.size() >= maxLocations) {
+						if (la.loggedLocations.size() > maxLocations) {
+							la.loggedLocations.removeFirst();
+						} 
+					}
+				}
+			}
+		}
 		if (currentTPS < acceptableTPS) {
 			goodRounds = 0;
 			topSuspects.clear();
@@ -129,32 +145,25 @@ public class BotDetector implements Runnable {
 				// TODO: See if inconsistencies might be thread-safeness related.
 				if (lastActivities.containsKey(playerUUID) && p != null) {
 					LastActivity la = entry.getValue();
-					la.loggedLocations.add(p.getLocation());
-					if (la.loggedLocations.size() >= maxLocations) {
-						if (la.loggedLocations.size() > maxLocations) {
-							la.loggedLocations.removeFirst();
-						}
-						// we tracking location even if on reprieve or immune, but that's it
-						if (!reprieve.containsKey(playerUUID) && !AFKPGC.immuneAccounts.contains(playerUUID)) {
+					if (!reprieve.containsKey(playerUUID) && !AFKPGC.immuneAccounts.contains(playerUUID)) {
+						if (la.loggedLocations.size()<maxLocations) {
 							int itWasntMeISwear = la.calculateMovementRadius();
 							if (itWasntMeISwear < smallestMovedDistance) {
 								smallestMovedDistance = itWasntMeISwear;
 								Player dirtyLiar = Bukkit.getPlayer(playerUUID);
-
 								topSuspects.put(itWasntMeISwear, new Suspect(
-										playerUUID, dirtyLiar.getName(), dirtyLiar.getLocation(),
-										la.evaluateBounds(relaxationFactor) ) );
-
+									playerUUID, dirtyLiar.getName(), dirtyLiar.getLocation(),
+									la.evaluateBounds(relaxationFactor) ) );
 								if (topSuspects.size() > maxSuspects) {
 									Suspect cleared = topSuspects.pollLastEntry().getValue(); // gets rid of largest distance
 									AFKPGC.debug("Player ", cleared.getUUID(), " released as suspect, better suspects found");
 								}
 							}
 						} else {
-							AFKPGC.debug("Skipping ", playerUUID, " due to reprieve or immunity");
+							AFKPGC.debug("Skipping ", playerUUID, " due to insufficient location data");
 						}
 					} else {
-						AFKPGC.debug("Skipping ", playerUUID, " due to insufficient location data");
+						AFKPGC.debug("Skipping ", playerUUID, " due to reprieve or immunity");
 					}
 				} else {
 					AFKPGC.debug("Player ", playerUUID, " likely offline.");
