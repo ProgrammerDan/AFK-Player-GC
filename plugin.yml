@@ -82,6 +82,11 @@ commands:
       usage: /afkpgc listallreprieve
       aliases: lar
       permission: AFKPGC.execute
+   afkpgc toggledebug:
+      description: Toggle debug / verbose logging on and off.
+      usage: /afkpgc toggledebug
+      aliases: td
+      permission: AFKPGC.configureValues
 permissions:
     AFKPGC.*:
       description: Gives access to all afkpgc commands
@@ -102,7 +107,7 @@ permissions:
       description: Allows you to use /afkpgc getacceptabletps, /afkpgc getcriticaltpschange, /afkpgc getlongbans, /afkpgc getbannedplayers and /afkpgc getsuspectedplayers
       default: op
     AFKPGC.configureValues:
-      description: Allows you to use /afkpgc setacceptabletps, /afkpgc setcriticaltpschange, /afkpgc setlongbans, /afkpgc stop and /afkpgc reload
+      description: Allows you to use /afkpgc setacceptabletps, /afkpgc setcriticaltpschange, /afkpgc setlongbans, /afkpgc stop, /afkpgc reload, and /afkpgc toggledebug
       default: op
     AFKPGC.execute:
       description: Allows you to use /afkpgc forcebotdetector, /afkpgc clearallreprieve, /afkpgc listallreprieve
