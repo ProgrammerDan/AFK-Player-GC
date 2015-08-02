@@ -59,10 +59,12 @@ public class LastActivity{
 	public int calculateMovementRadius() {
 		Location current = loggedLocations.getLast();
 		int distance = 0;
-		for(int i=0; i < loggedLocations.size()-1; i++) {
-			int possibleNewDistance = (int) loggedLocations.get(i).distance(current);
-			if (possibleNewDistance > distance) {
-				distance = possibleNewDistance;
+		for(Location l : loggedLocations ) {
+			if (current.getWorld().getName().equals(l.getWorld().getName())) {
+				int possibleNewDistance = (int) l.distance(current);
+				if (possibleNewDistance > distance) {
+					distance = possibleNewDistance;
+				}
 			}
 		}
 		return distance;

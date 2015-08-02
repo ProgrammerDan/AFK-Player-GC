@@ -29,8 +29,12 @@ public class ActivityBounds {
 	private void reset(List<Location> points) {
 		xLow = yLow = zLow = Double.MAX_VALUE;
 		xHigh = yHigh = zHigh = Double.MIN_VALUE;
+		String world = points.get(points.size() - 1).getWorld().getName();
 		
 		for (Location l : points) {
+			if (!world.equals(l.getWorld().getName()) ) {
+				continue;
+			}
 			double x = l.getX();
 			double y = l.getY();
 			double z = l.getZ();
