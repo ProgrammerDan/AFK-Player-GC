@@ -79,7 +79,12 @@ public class BotDetector implements Runnable {
 
 	public void run() {
 		currentTPS = TpsReader.getTPS();
-		doDetector();
+		try {
+			doDetector();
+		} catch (Exception e) { // ugly catchall
+			AFKPGC.logger.severe("Caught an exception while running BotDetector: " + e.toString());
+			e.printStackTrace();
+		}
 		AFKPGC.debug("Next detector invocation: ",
 				(long) ((double) BotDetector.frequency * (currentTPS / 20.0)), " in ticks");
 		AFKPGC.plugin.getServer().getScheduler().scheduleSyncDelayedTask(
