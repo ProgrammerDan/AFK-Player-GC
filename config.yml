@@ -36,7 +36,7 @@ bot_detector:
   # Max suspects to consider per Detector round
   max_suspects: 10
   # Baseline movement (in MC blocks) to be considered for bot detection
-  min_baseline: 512
+  min_baseline: 256
   # Maximum scan rounds to "ignore" a player who was previously cleared as a lag source
   max_reprieve: 10
   # Number of BotDetector rounds at good TPS before releasing lag offenders
@@ -47,6 +47,8 @@ bot_detector:
   kick_nearby: true
   # Radius to consider if kicking nearby players
   kick_nearby_radius: 16
+  # Amount of players checked per run
+  players_checked_per_run: 2
   # Configure the threshold and individual contribution of bound types
   bounds:
     relaxation_factor: 0.1
