@@ -45,7 +45,10 @@ bot_detector:
   # Radius to consider if kicking nearby players
   kick_nearby_radius: 16
   # Amount of players checked per run
-  players_checked_per_run: 2
+  players_checked_per_run: 1
+  # Distance a player needs to move away from a lagsource to not get kicked if he is caught by the
+  # system again
+  safe_distance: 128
   # Configure the threshold and individual contribution of bound types
   bounds:
     relaxation_factor: 0.1

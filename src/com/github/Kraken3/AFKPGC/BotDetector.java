@@ -44,11 +44,12 @@ public class BotDetector implements Runnable {
 	public static BoundResultsConfiguration boundsConfig;
 	public static long frequency; // how often this runs in ticks
 	public static File banfile;
-	public static boolean kickNearby; // TODO addresses weakness of multiple people loading same lag machine
-	public static int kickNearbyRadius; // TODO
+	public static boolean kickNearby;
+	public static int kickNearbyRadius;
 	public static boolean observationMode;
 	public static int releaseRounds;
 	public static int amountOfChecksPerRun;
+	public static int safeDistance;
 
 	TreeMap<Integer, Suspect> topSuspects;
 	HashMap<UUID, Integer> reprieve; // temp. cleared suspects
@@ -207,25 +208,30 @@ public class BotDetector implements Runnable {
 											Player p = Bukkit.getPlayer(curSuspect.getUUID());
 											warnPlayer(p);
 											warnedPlayers.add(curSuspect);
-											if (p != null) {
-												if (BotDetector.kickNearby) {
-													List<Player> nearby = getPlayersWithin(p, BotDetector.kickNearbyRadius);
-	
-													for (Player q : nearby) {
-														warnPlayer(q);
-														AFKPGC.debug("Player ", q.getUniqueId(), " (", q.getName(),
-																") warned for being nearby lag source.");
-													}
-												}
-											}
 										}
 										else {
-												//The person has been warned, so we now ban him
+												//The person has been warned already, check whether he is in the same region.
 											Player p = Bukkit.getPlayer(curSuspect.getUUID());
-											if (p != null) {
-												AFKPGC.debug(p.getUniqueId()," (",p.getName(),") was warned but didn't listen, so "
-														+ "he was banned");
-												giveOutLongBan(p);
+											if (p != null) {											
+												boolean found = false;
+												for(Suspect warned:warnedPlayers) {
+													if (curSuspect.equals(warned) && curSuspect.getLocation().distance(warned.getLocation()) 
+															< safeDistance) {
+														AFKPGC.debug(p.getUniqueId()," (",p.getName(),") was warned but didn't listen, so "
+																+ "he was banned");
+														giveOutLongBan(p);
+														found = true;
+														break;
+													}
+													
+												}
+												if (!found) {
+													warnPlayer(p);
+													warnedPlayers.add(curSuspect);
+													AFKPGC.debug(p.getUniqueId()," (",p.getName(),") was found causing lag at a different location, at ",
+															p.getLocation()," and warned again");
+												}
+												
 											}
 										}
 									} else {
@@ -355,12 +361,24 @@ public class BotDetector implements Runnable {
 		}
 	}
 	
-	public static void warnPlayer(Player p) {
+	public void warnPlayer(Player p) {
 		if (p != null) {
 			p.sendMessage("[WARNING] You are in a region with a high concentration of lag sources."
 					+ " Please immediately depart the area (leave render distance) or you will be "
 					+ "temporarily banned.");
 			AFKPGC.debug("Player ", p.getUniqueId(), " (", p.getName(), ") was notified of presence in lag source");
+			if (BotDetector.kickNearby) {
+				List<Player> nearby = getPlayersWithin(p, BotDetector.kickNearbyRadius);
+				for (Player q : nearby) {
+					p.sendMessage("[WARNING] You are near a region with a high concentration of lag sources."
+							+ " Please immediately depart the area (leave render distance) or you will be "
+							+ "temporarily banned.");
+					AFKPGC.debug("Player ", q.getUniqueId(), " (", q.getName(),
+							") warned for being nearby lag source.");
+				}
+			}
+			
+			
 		}
 		
 	}

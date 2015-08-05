@@ -134,6 +134,8 @@ public class ConfigurationReader {
 		AFKPGC.debug("Kick Nearby Radius: ", BotDetector.kickNearbyRadius);
 		BotDetector.amountOfChecksPerRun = bd.getInt("players_checked_per_run");
 		AFKPGC.debug("Players checked per run:", BotDetector.amountOfChecksPerRun);
+		BotDetector.safeDistance = bd.getInt("safe_distance");
+		AFKPGC.debug("Safe distance: ",BotDetector.safeDistance);
 		ConfigurationSection bdbc = bd.getConfigurationSection("bounds");
 		//BotDetector Bounds Configuration
 		BotDetector.relaxationFactor = bdbc.getDouble("relaxation_factor");
