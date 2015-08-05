@@ -110,8 +110,6 @@ public class ConfigurationReader {
 		AFKPGC.debug("Acceptable TPS: ", BotDetector.acceptableTPS);
 		BotDetector.startingTPS = (float) bd.getDouble("starting_TPS");
 		AFKPGC.debug("Starting TPS: ",BotDetector.startingTPS);
-		BotDetector.criticalTPSChange = (float) bd.getDouble("critical_TPS_Change");
-		AFKPGC.debug("Critical TPS Change: ", BotDetector.criticalTPSChange);
 		BotDetector.frequency = bd.getInt("kicking_frequency");
 		AFKPGC.debug("Detector Frequency: ", BotDetector.frequency);
 		BotDetector.longBans = bd.getBoolean("long_bans");

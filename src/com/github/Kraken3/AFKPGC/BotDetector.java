@@ -34,7 +34,6 @@ public class BotDetector implements Runnable {
 	public static float currentTPS = 20;
 	public static float acceptableTPS;
 	public static float startingTPS;
-	public static float criticalTPSChange;
 	public static double relaxationFactor;
 	public static int maxLocations;
 	public static int maxSuspects;

@@ -19,10 +19,7 @@ bot_detector:
   acceptable_TPS: 17.5
   #Once the tps goes below this value, locations start to get logged
   starting_TPS: 18
-  # critical_TPS_Change is the minimal change in TPS that needs to happen after kicking a player, 
-  #   so he is marked as someone causing lag and his name is logged.
-  critical_TPS_Change: 0.3
-  # kicking_frequency is how often a player gets kicked and the TPS change monitored afterwards 
+  # kicking_frequency is how often the bot detector runs 
   #   in ticks
   kicking_frequency: 1800
   # Whether players get banned for a long time/ until the tick is high again
