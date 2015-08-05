@@ -357,9 +357,10 @@ public class BotDetector implements Runnable {
 	
 	public static void warnPlayer(Player p) {
 		if (p != null) {
-			p.sendMessage("[WARNING] You were determined to be a cause of lag, if you dont stay out of the area "+
-					"you are in right now, you will be temporarily banned");
-			AFKPGC.debug(p.getUniqueId()," was informed that he is causing lag");
+			p.sendMessage("[WARNING] You are in a region with a high concentration of lag sources."
+					+ " Please immediately depart the area (leave render distance) or you will be "
+					+ "temporarily banned.");
+			AFKPGC.debug("Player ", p.getUniqueId(), " (", p.getName(), ") was notified of presence in lag source");
 		}
 		
 	}

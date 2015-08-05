@@ -22,8 +22,7 @@ public class CommandHandler implements CommandExecutor {
 		plugin.getCommand("afkpgc").setExecutor(this);
 
 		registerCommands(new AbstractCommand[] { new SetAcceptableTPS(plugin),
-				new SetCriticalTPSChange(plugin), new SetLongBans(plugin),
-				new GetAcceptableTPS(plugin), new GetCriticalTPSChange(plugin),
+				new SetLongBans(plugin), new GetAcceptableTPS(plugin),
 				new GetLongBans(plugin), new GetSuspectedPlayers(plugin),
 				new GetBannedPlayers(plugin), new Info(plugin),
 				new ListPlayers(plugin), new Reload(plugin), new Stop(plugin),
