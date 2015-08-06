@@ -74,6 +74,9 @@ lag_scanner:
   # Whether the lag scanner should keep scanning if it already determined someone is causing lag
   # to get an exact value how much lag the player is causing
   full_scan: true
+  # If a chunks lag count is below this value, it is considered "normal" and not taken into account for the
+  # total lag count calculation
+  normal_chunk_value: 100
   # Per tickable block cost 
   tick_block:
     BANNER: 1

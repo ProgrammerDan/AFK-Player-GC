@@ -28,6 +28,7 @@ public class LagScanner {
 	public static long unloadThreshold;
 	public static boolean performUnload;
 	public static boolean fullScan;
+	public static long normalChunkValue;
 
 	private Location center;
 	private Integer radius;
@@ -200,6 +201,12 @@ public class LagScanner {
 		}
 		else {
 			AFKPGC.debug("The chunk ", chunk.getX(), ", ", chunk.getZ(), " was loaded from the cache with a measure of ", result.lagContrib, " lag sources");
+		}
+		if (result.lagContrib < normalChunkValue) {
+			AFKPGC.debug("The chunk ", chunk.getX(), ", ", chunk.getZ(), " was ignored for the lag "
+					+ "contribution, because it was below the normal chunk value");
+			return new LagScanner.Result(null, 0, 0, 0, 0L, 0L);  
+			//this is only used to read the lag contribution and does its job to deliver that
 		}
 		return result;
 	}

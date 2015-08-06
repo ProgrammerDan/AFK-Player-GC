@@ -180,6 +180,8 @@ public class ConfigurationReader {
 		AFKPGC.debug("LagScanner Chunk Unload Threshold: ",LagScanner.unloadThreshold);
 		LagScanner.performUnload = ls.getBoolean("perform_unload");
 		AFKPGC.debug("LagScanner Perform Chunk Unload: ", LagScanner.performUnload);
+		LagScanner.normalChunkValue = ls.getInt("normal_chunk_value");
+		AFKPGC.debug("LagScanner Normal Chunk Value: ",LagScanner.normalChunkValue);
 		
 
 		LagCostConfig.getInstance().clearCosts(); // TODO: change to get lock
