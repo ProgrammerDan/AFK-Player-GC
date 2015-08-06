@@ -19,8 +19,7 @@ bot_detector:
   acceptable_TPS: 17.5
   #Once the tps goes below this value, locations start to get logged
   starting_TPS: 18
-  # kicking_frequency is how often the bot detector runs 
-  #   in ticks
+  # kicking_frequency is how often the bot detector runs in ticks
   kicking_frequency: 1800
   # Whether players get banned for a long time/ until the tick is high again
   long_bans: false
@@ -46,8 +45,7 @@ bot_detector:
   kick_nearby_radius: 16
   # Amount of players checked per run
   players_checked_per_run: 1
-  # Distance a player needs to move away from a lagsource to not get kicked if he is caught by the
-  # system again
+  # Distance a player needs to move away from a lagsource to not get kicked if he is caught by the system again
   safe_distance: 128
   # Configure the threshold and individual contribution of bound types
   bounds:
@@ -74,7 +72,7 @@ lag_scanner:
   # Whether the lag scanner should keep scanning if it already determined someone is causing lag
   # to get an exact value how much lag the player is causing
   full_scan: true
-  # If a chunks lag count is below this value, it is considered "normal" and not taken into account for the
+  # If a chunk's lag count is below this value, it is considered "normal" and not taken into account for the
   # total lag count calculation
   normal_chunk_value: 100
   # Per tickable block cost 
