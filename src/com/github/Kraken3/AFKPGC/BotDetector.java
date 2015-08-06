@@ -77,7 +77,12 @@ public class BotDetector implements Runnable {
 
 	public void run() {
 		currentTPS = TpsReader.getTPS();
-		doDetector();
+		try {
+			doDetector();
+		} catch (Exception e) { // catchall b/c otherwise no future invocations.
+			AFKPGC.debug("Encountered an error during Detector invocation: ", e);
+			e.printStackTrace();
+		}
 		AFKPGC.debug("Next detector invocation: ",
 				(long) ((double) BotDetector.frequency * (currentTPS / 20.0)), " in ticks");
 		AFKPGC.plugin.getServer().getScheduler().scheduleSyncDelayedTask(
@@ -210,15 +215,14 @@ public class BotDetector implements Runnable {
 											warnedPlayers.add(curSuspect);
 										}
 										else {
-												//The person has been warned already, check whether he is in the same region.
+											//The person has been warned already, check whether he is in the same region.
 											Player p = Bukkit.getPlayer(curSuspect.getUUID());
-											if (p != null) {											
+											if (p != null) {
 												boolean found = false;
 												for(Suspect warned:warnedPlayers) {
-													if (curSuspect.equals(warned) && curSuspect.getLocation().distance(warned.getLocation()) 
-															< safeDistance) {
-														AFKPGC.debug(p.getUniqueId()," (",p.getName(),") was warned but didn't listen, so "
-																+ "he was banned");
+													if (curSuspect.equals(warned) && curSuspect.getLocation().getWorld().getName().equals(warned.getLocation().getWorld().getName()) && 
+															curSuspect.getLocation().distance(warned.getLocation()) < safeDistance) {
+														AFKPGC.debug(p.getUniqueId()," (",p.getName(),") was warned but didn't listen, so a ban was applied");
 														giveOutLongBan(p);
 														found = true;
 														break;
@@ -244,6 +248,7 @@ public class BotDetector implements Runnable {
 										break;
 									}
 								}
+								continue; // don't issue reprieve
 							} else {
 								AFKPGC.debug("Player ", curSuspect.getUUID(), " (", curSuspect.getName(),
 										") cleared via insufficient lagsources [", ls.getLagCompute(), "]");
