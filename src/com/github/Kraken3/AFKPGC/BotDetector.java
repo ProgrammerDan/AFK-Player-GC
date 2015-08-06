@@ -34,7 +34,6 @@ public class BotDetector implements Runnable {
 	public static float currentTPS = 20;
 	public static float acceptableTPS;
 	public static float startingTPS;
-	public static float criticalTPSChange;
 	public static double relaxationFactor;
 	public static int maxLocations;
 	public static int maxSuspects;
@@ -45,20 +44,19 @@ public class BotDetector implements Runnable {
 	public static BoundResultsConfiguration boundsConfig;
 	public static long frequency; // how often this runs in ticks
 	public static File banfile;
-	public static boolean kickNearby; // TODO addresses weakness of multiple people loading same lag machine
-	public static int kickNearbyRadius; // TODO
+	public static boolean kickNearby;
+	public static int kickNearbyRadius;
 	public static boolean observationMode;
 	public static int releaseRounds;
-	float lastRoundTPS;
+	public static int amountOfChecksPerRun;
+	public static int safeDistance;
 
 	TreeMap<Integer, Suspect> topSuspects;
 	HashMap<UUID, Integer> reprieve; // temp. cleared suspects
 
 	int goodRounds = 0;
 	
-	Suspect lastRoundSuspect = null;
-	
-	public static LinkedList<String> suspectedBotters = new LinkedList<String>();
+	public static LinkedList<Suspect> warnedPlayers = new LinkedList<Suspect>();
 	/* this is needed as a separated list, so we know the difference between players
 	 * who were banned by AFKPGC and players who were banned for other reasons */
 	public static LinkedList<String> bannedPlayers = new LinkedList<String>();
@@ -79,7 +77,12 @@ public class BotDetector implements Runnable {
 
 	public void run() {
 		currentTPS = TpsReader.getTPS();
-		doDetector();
+		try {
+			doDetector();
+		} catch (Exception e) { // catchall b/c otherwise no future invocations.
+			AFKPGC.debug("Encountered an error during Detector invocation: ", e);
+			e.printStackTrace();
+		}
 		AFKPGC.debug("Next detector invocation: ",
 				(long) ((double) BotDetector.frequency * (currentTPS / 20.0)), " in ticks");
 		AFKPGC.plugin.getServer().getScheduler().scheduleSyncDelayedTask(
@@ -148,7 +151,6 @@ public class BotDetector implements Runnable {
 						if (la.loggedLocations.size() == maxLocations) {
 							int itWasntMeISwear = la.calculateMovementRadius();
 							if (itWasntMeISwear < smallestMovedDistance) {
-								smallestMovedDistance = itWasntMeISwear;
 								Player dirtyLiar = Bukkit.getPlayer(playerUUID);
 								topSuspects.put(itWasntMeISwear, new Suspect(
 									playerUUID, dirtyLiar.getName(), dirtyLiar.getLocation(),
@@ -168,9 +170,12 @@ public class BotDetector implements Runnable {
 					AFKPGC.debug("Player ", playerUUID, " likely offline.");
 				}
 			}
-			Suspect thisRoundSuspect = null;
 			// Now find first top suspect to pass the truebot tests.
-			if (topSuspects.size() > 0) {
+			int peopleToCheck = amountOfChecksPerRun;
+			if (peopleToCheck > topSuspects.size()) {
+				peopleToCheck = topSuspects.size();
+			}
+			if (peopleToCheck > 0) {
 				for (Map.Entry<Integer, Suspect> entry : topSuspects.entrySet()) {
 					Suspect curSuspect = entry.getValue();
 					// Test Bounds for truebot(tm) detection.
@@ -196,7 +201,6 @@ public class BotDetector implements Runnable {
 							LagScanner ls = new LagScanner(point, scanRadius, null);
 							ls.run(); // TODO: move this and ban results to thread.
 							if (ls.isLagSource()) {
-								thisRoundSuspect = curSuspect;
 								if (longBans && ls.isExtremeLagSource()) {
 									if (!observationMode) {
 										giveOutLongBan(curSuspect);
@@ -204,46 +208,47 @@ public class BotDetector implements Runnable {
 									AFKPGC.debug("Player ", curSuspect.getUUID(), " (", curSuspect.getName(), 
 											") is an extreme lag source with a lag compute of ", ls.getLagCompute());
 								} else {
-									Date currentDate = new Date();
-									long bantime = (long) (frequency / currentTPS * 1000.0);
-									/* Because the ban time is based on real time and the next run
-									 * of this method is based on the tick, the ban time needs to be
-									 * adjusted to the tick. The long form of this would be:
-									 * (20/currentTPS) * (frequency/20) * 1000
-									 * The time is in ms */
 									if (!observationMode) {
-										BanEntry leBan = banList.addBan(curSuspect.getName(),
-												"You were suspected to cause lag and banned for "
-														+ (bantime / 1000) + " seconds",
-														new Date(currentDate.getTime() + bantime), null);
-										Player p = Bukkit.getPlayer(curSuspect.getUUID());
-										if (p != null) {
-											if (BotDetector.kickNearby) {
-												List<Player> nearby = getPlayersWithin(p, BotDetector.kickNearbyRadius);
-
-												for (Player q : nearby) {
-													BanEntry qBan = banList.addBan(q.getName(), leBan.getReason(),
-															new Date(currentDate.getTime() + bantime), null);
-													q.kickPlayer(leBan.getReason());
-													AFKPGC.debug("Player ", q.getUniqueId(), " (", q.getName(),
-															") short banned for ", bantime / 1000, 
-															" seconds for being nearby lag source.");
-												}
-											}
-											LagScanner.unloadChunks(p.getLocation(), scanRadius);
-											p.kickPlayer(leBan.getReason());
+										if (!warnedPlayers.contains(curSuspect)) {
+											Player p = Bukkit.getPlayer(curSuspect.getUUID());
+											warnPlayer(p);
+											warnedPlayers.add(curSuspect);
 										}
-										AFKPGC.debug("Player ", curSuspect.getUUID(), " (", curSuspect.getName(),
-												") exceeded ban threshold with ", ls.getLagCompute(), " banned for",
-												bantime / 1000, " seconds");
+										else {
+											//The person has been warned already, check whether he is in the same region.
+											Player p = Bukkit.getPlayer(curSuspect.getUUID());
+											if (p != null) {
+												boolean found = false;
+												for(Suspect warned:warnedPlayers) {
+													if (curSuspect.equals(warned) && curSuspect.getLocation().getWorld().getName().equals(warned.getLocation().getWorld().getName()) && 
+															curSuspect.getLocation().distance(warned.getLocation()) < safeDistance) {
+														AFKPGC.debug(p.getUniqueId()," (",p.getName(),") was warned but didn't listen, so a ban was applied");
+														giveOutLongBan(p);
+														found = true;
+														break;
+													}
+													
+												}
+												if (!found) {
+													warnPlayer(p);
+													warnedPlayers.add(curSuspect);
+													AFKPGC.debug(p.getUniqueId()," (",p.getName(),") was found causing lag at a different location, at ",
+															p.getLocation()," and warned again");
+												}
+												
+											}
+										}
 									} else {
 										AFKPGC.debug("Player ", curSuspect.getUUID(), " (", curSuspect.getName(),
-												") exceeded ban threshold with ", ls.getLagCompute());
+												") exceeded warning threshold with ", ls.getLagCompute());
 									}
-
-									// ban the player briefly and skip the other suspects.
-									break;
+									
+									peopleToCheck--;
+									if (peopleToCheck <= 0) {
+										break;
+									}
 								}
+								continue; // don't issue reprieve
 							} else {
 								AFKPGC.debug("Player ", curSuspect.getUUID(), " (", curSuspect.getName(),
 										") cleared via insufficient lagsources [", ls.getLagCompute(), "]");
@@ -263,52 +268,12 @@ public class BotDetector implements Runnable {
 			} else {
 				AFKPGC.debug("No suspects this round.");
 			}
-
-			if (lastRoundSuspect != null && !observationMode) {
-				// TODO: This is starting to stink of synchronization issues. We shouldn't need
-				//       to check immune so often within the same compute round.
-				if (!AFKPGC.immuneAccounts.contains(lastRoundSuspect.getUUID())) {
-					if (currentTPS - lastRoundTPS > criticalTPSChange) {
-						/* This can be relatively sensitive, because it will only ban players for 
-						 * a longer period of time, if it catches them twice here */
-						if (suspectedBotters.contains(lastRoundSuspect.getName())) {
-							if (longBans) {
-								giveOutLongBan(lastRoundSuspect);
-							}
-							AFKPGC.logger.info("The player " + lastRoundSuspect.getUUID() + " (" +
-									lastRoundSuspect.getName() + ")"
-									+ " causes lag and is a repeated offender, kicking him resulted"
-									+ " in a TPS improvement of " + String.valueOf(currentTPS - lastRoundTPS)
-									+ " at the location " + lastRoundSuspect.getLocation().toString());
-
-						} else {
-							suspectedBotters.add(lastRoundSuspect.getName());
-							AFKPGC.logger.info( "The player " + lastRoundSuspect.getUUID() + " (" +
-									lastRoundSuspect.getName() + ")"
-									+ " is suspected to cause lag, kicking him resulted in a TPS improvement of "
-									+ String.valueOf(currentTPS - lastRoundTPS) + " at the location "
-									+ lastRoundSuspect.getLocation().toString());
-						}
-					} else {
-						AFKPGC.debug("Player ", lastRoundSuspect.getUUID(), " (", lastRoundSuspect.getName(),
-								") cleared, kicking them did not improve TPS -- granting a reprieve");
-						reprieve.put(lastRoundSuspect.getUUID(), maxReprieve);
-					}
-				} else {
-					AFKPGC.debug("Player ", lastRoundSuspect.getUUID(), " (", lastRoundSuspect.getName(),
-							") was suspected but is immune.");
-				}
-			} else {
-				AFKPGC.debug("No prior suspects to evaluable.");
-			}
-
-			lastRoundTPS = currentTPS;
-			lastRoundSuspect = thisRoundSuspect;
 		} else { // TPS is high enough
 			goodRounds ++;
 			if (goodRounds > releaseRounds && bannedPlayers.size() != 0) {
 				AFKPGC.debug("TPS has remained improved, removing bans");
 				freeEveryone(); // not everyone, but everyone banned by this plugin
+				warnedPlayers.clear();
 			}
 		}
 	}
@@ -346,22 +311,25 @@ public class BotDetector implements Runnable {
 	}
 
     private void giveOutLongBan(Suspect s) {
+    	if (!longBans) {
+    		return;
+    	}
     	Date currentDate=new Date();
     	BanEntry leBan = banList.addBan( s.getName(),
-	    		"Kicking you resulted in a noticeable TPS improvement, so you " +
-				"were banned until the TPS goes back to normal values.",
+	    		"You are causing lag, so you were banned",
 				new Date(currentDate.getTime() + longBan), null); // long ban.
     	Player p = Bukkit.getPlayer(s.getUUID());
 	    if (p != null) {
 	    	if (BotDetector.kickNearby) {
 			    List<Player> nearby = getPlayersWithin(p, BotDetector.kickNearbyRadius);
-
 			    for (Player q : nearby) {
 			    	BanEntry qBan = banList.addBan(q.getName(), leBan.getReason(),
 						    new Date(currentDate.getTime() + longBan), null);
 				    q.kickPlayer(leBan.getReason());
 				    AFKPGC.debug("Player ", q.getUniqueId(), " (", q.getName(), ") long banned for ",
 						    longBan," confirmed nearby lag source.");
+				    bannedPlayers.add(q.getName());
+					addToBanfile(q.getName());
 			    }
 	    	}
 			LagScanner.unloadChunks(p.getLocation(), scanRadius);
@@ -369,10 +337,16 @@ public class BotDetector implements Runnable {
 		}
 		bannedPlayers.add(s.getName());
 		addToBanfile(s.getName());
-		suspectedBotters.remove(s.getName());
+		warnedPlayers.remove(new Suspect(s.getUUID(),s.getName(),null,null));
 		AFKPGC.debug("Player ", s.getUUID(), " (", s.getName(), ") long banned for ",
 				longBan," confirmed lag source.");
 	}
+    
+    private void giveOutLongBan(Player p) {
+    	if (p != null) {
+    		giveOutLongBan(new Suspect(p.getUniqueId(),p.getName(),p.getLocation(),null));
+    	}
+    }
 
 	public static void parseBanlist() {
 		if (banfile == null && !banfile.exists()) {
@@ -390,6 +364,28 @@ public class BotDetector implements Runnable {
 		} catch (IOException ex) {
 			AFKPGC.logger.warning("Error while trying to parse the banned players file");
 		}
+	}
+	
+	public void warnPlayer(Player p) {
+		if (p != null) {
+			p.sendMessage("[WARNING] You are in a region with a high concentration of lag sources."
+					+ " Please immediately depart the area (leave render distance) or you will be "
+					+ "temporarily banned.");
+			AFKPGC.debug("Player ", p.getUniqueId(), " (", p.getName(), ") was notified of presence in lag source");
+			if (BotDetector.kickNearby) {
+				List<Player> nearby = getPlayersWithin(p, BotDetector.kickNearbyRadius);
+				for (Player q : nearby) {
+					p.sendMessage("[WARNING] You are near a region with a high concentration of lag sources."
+							+ " Please immediately depart the area (leave render distance) or you will be "
+							+ "temporarily banned.");
+					AFKPGC.debug("Player ", q.getUniqueId(), " (", q.getName(),
+							") warned for being nearby lag source.");
+				}
+			}
+			
+			
+		}
+		
 	}
 
 }

@@ -87,6 +87,11 @@ commands:
       usage: /afkpgc toggledebug
       aliases: td
       permission: AFKPGC.configureValues
+   afkpgc freeeveryone:
+      description: Frees everyone banned by this plugin
+      usage: /afkpgc freeeveryone
+      aliases: fe
+      permission: AFKPGC.execute
 permissions:
     AFKPGC.*:
       description: Gives access to all afkpgc commands
@@ -110,5 +115,5 @@ permissions:
       description: Allows you to use /afkpgc setacceptabletps, /afkpgc setcriticaltpschange, /afkpgc setlongbans, /afkpgc stop, /afkpgc reload, and /afkpgc toggledebug
       default: op
     AFKPGC.execute:
-      description: Allows you to use /afkpgc forcebotdetector, /afkpgc clearallreprieve, /afkpgc listallreprieve
+      description: Allows you to use /afkpgc forcebotdetector, /afkpgc clearallreprieve, /afkpgc listallreprieve, /afkpgc freeeveryone
       default: op

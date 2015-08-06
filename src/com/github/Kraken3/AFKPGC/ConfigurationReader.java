@@ -110,8 +110,6 @@ public class ConfigurationReader {
 		AFKPGC.debug("Acceptable TPS: ", BotDetector.acceptableTPS);
 		BotDetector.startingTPS = (float) bd.getDouble("starting_TPS");
 		AFKPGC.debug("Starting TPS: ",BotDetector.startingTPS);
-		BotDetector.criticalTPSChange = (float) bd.getDouble("critical_TPS_Change");
-		AFKPGC.debug("Critical TPS Change: ", BotDetector.criticalTPSChange);
 		BotDetector.frequency = bd.getInt("kicking_frequency");
 		AFKPGC.debug("Detector Frequency: ", BotDetector.frequency);
 		BotDetector.longBans = bd.getBoolean("long_bans");
@@ -134,6 +132,10 @@ public class ConfigurationReader {
 		AFKPGC.debug("Kick Nearby: ", BotDetector.kickNearby);
 		BotDetector.kickNearbyRadius = bd.getInt("kick_nearby_radius");
 		AFKPGC.debug("Kick Nearby Radius: ", BotDetector.kickNearbyRadius);
+		BotDetector.amountOfChecksPerRun = bd.getInt("players_checked_per_run");
+		AFKPGC.debug("Players checked per run:", BotDetector.amountOfChecksPerRun);
+		BotDetector.safeDistance = bd.getInt("safe_distance");
+		AFKPGC.debug("Safe distance: ",BotDetector.safeDistance);
 		ConfigurationSection bdbc = bd.getConfigurationSection("bounds");
 		//BotDetector Bounds Configuration
 		BotDetector.relaxationFactor = bdbc.getDouble("relaxation_factor");
@@ -178,6 +180,8 @@ public class ConfigurationReader {
 		AFKPGC.debug("LagScanner Chunk Unload Threshold: ",LagScanner.unloadThreshold);
 		LagScanner.performUnload = ls.getBoolean("perform_unload");
 		AFKPGC.debug("LagScanner Perform Chunk Unload: ", LagScanner.performUnload);
+		LagScanner.normalChunkValue = ls.getInt("normal_chunk_value");
+		AFKPGC.debug("LagScanner Normal Chunk Value: ",LagScanner.normalChunkValue);
 		
 
 		LagCostConfig.getInstance().clearCosts(); // TODO: change to get lock

@@ -16,8 +16,8 @@ public class GetSuspectedPlayers extends AbstractCommand {
 	@Override
 	public boolean onCommand(CommandSender sender, List<String> args) {
 		String s = "";
-		for (int i = 0; i < BotDetector.suspectedBotters.size(); i++) {
-			s = s + BotDetector.suspectedBotters.get(i) + ", ";
+		for (int i = 0; i < BotDetector.warnedPlayers.size(); i++) {
+			s = s + BotDetector.warnedPlayers.get(i) + ", ";
 		}
 		if (s.length() != 0) {
 			s = s.substring(0, s.length() - 1); // remove last comma
