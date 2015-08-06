@@ -111,7 +111,7 @@ public class LagScanner {
 		AFKPGC.debug("Attempting to unload laggiest chunks");
 		for (int x = oX - radius; x <= oX + radius; x++) {
 			for (int z = oZ - radius; z <= oZ + radius; z++) {
-				long chunkId = (long) x << 32L + (long) z;
+				long chunkId = ((long) x << 32L) + (long) z;
 				LagScanner.Result result = lcache.get(chunkId);
 				if (result != null && result.lagContrib >= unloadThreshold) {
 					Chunk nC = chunkWorld.getChunkAt(x, z);
@@ -125,7 +125,7 @@ public class LagScanner {
 
 	public LagScanner.Result testChunk(Chunk chunk, long now) {
 		String world = chunk.getWorld().getName();
-		long chunkId = (long) chunk.getX() << 32L + (long) chunk.getZ();
+		long chunkId = ((long) chunk.getX() << 32L) + (long) chunk.getZ();
 		Map<Long, LagScanner.Result> worldCache = null;
 		if (!LagScanner.cache.containsKey(world)) {
 			worldCache = new HashMap<Long, LagScanner.Result>();
