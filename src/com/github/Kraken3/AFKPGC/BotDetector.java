@@ -126,7 +126,7 @@ public class BotDetector implements Runnable {
 				if (lastActivities.containsKey(playerUUID) && p != null) {
 					LastActivity la = entry.getValue();
 					la.loggedLocations.add(p.getLocation());
-					if (la.loggedLocations.size() > maxLocations) {
+					while (la.loggedLocations.size() > maxLocations) {
 						la.loggedLocations.removeFirst();
 					} 
 					
@@ -148,7 +148,7 @@ public class BotDetector implements Runnable {
 				if (lastActivities.containsKey(playerUUID) && p != null) {
 					LastActivity la = entry.getValue();
 					if (!reprieve.containsKey(playerUUID) && !AFKPGC.immuneAccounts.contains(playerUUID)) {
-						if (la.loggedLocations.size() == maxLocations) {
+						if (la.loggedLocations.size() >= maxLocations) {
 							int itWasntMeISwear = la.calculateMovementRadius();
 							if (itWasntMeISwear < smallestMovedDistance) {
 								Player dirtyLiar = Bukkit.getPlayer(playerUUID);
