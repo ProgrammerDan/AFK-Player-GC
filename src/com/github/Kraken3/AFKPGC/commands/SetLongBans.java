@@ -16,13 +16,13 @@ public class SetLongBans extends AbstractCommand {
 	public boolean onCommand(CommandSender sender, List<String> args) {
 		if (args.size() == 1) {
 			if (args.get(0).matches("true")) {
-				BotDetector.longBans = true;
-				sender.sendMessage("Set long bans to true");
+				BotDetector.enableBans = true;
+				sender.sendMessage("Enabled bans");
 				return true;
 			}
 			if (args.get(0).matches("false")) {
-				BotDetector.longBans = false;
-				sender.sendMessage("Set long bans to false");
+				BotDetector.enableBans = false;
+				sender.sendMessage("Disabled bans");
 				return true;
 			}
 		}

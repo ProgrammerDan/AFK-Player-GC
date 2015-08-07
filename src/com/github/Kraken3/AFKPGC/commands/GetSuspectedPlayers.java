@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 
 import com.github.Kraken3.AFKPGC.AFKPGC;
 import com.github.Kraken3.AFKPGC.BotDetector;
+import com.github.Kraken3.AFKPGC.Suspect;
 
 public class GetSuspectedPlayers extends AbstractCommand {
 
@@ -15,14 +16,12 @@ public class GetSuspectedPlayers extends AbstractCommand {
 
 	@Override
 	public boolean onCommand(CommandSender sender, List<String> args) {
-		String s = "";
-		for (int i = 0; i < BotDetector.warnedPlayers.size(); i++) {
-			s = s + BotDetector.warnedPlayers.get(i) + ", ";
+		StringBuilder s = new StringBuilder();
+		for (Suspect wp : BotDetector.warnedPlayers) {
+			s.append(wp.getUUID()).append(", ");
 		}
-		if (s.length() != 0) {
-			s = s.substring(0, s.length() - 1); // remove last comma
-		}
-		sender.sendMessage("Currently suspected by the botdetector are: " + s);
+		sender.sendMessage("Currently suspected by the botdetector are: " +
+				(s.length() > 0 ? s.substring(0, s.length() - 2) : s.toString()));
 		return true;
 	}
 

@@ -108,35 +108,31 @@ public class ConfigurationReader {
 		AFKPGC.debug("Observation mode: ", BotDetector.observationMode);
 		BotDetector.acceptableTPS = (float) bd.getDouble("acceptable_TPS");
 		AFKPGC.debug("Acceptable TPS: ", BotDetector.acceptableTPS);
-		BotDetector.startingTPS = (float) bd.getDouble("starting_TPS");
-		AFKPGC.debug("Starting TPS: ",BotDetector.startingTPS);
 		BotDetector.frequency = bd.getInt("kicking_frequency");
 		AFKPGC.debug("Detector Frequency: ", BotDetector.frequency);
-		BotDetector.longBans = bd.getBoolean("long_bans");
-		AFKPGC.debug("Activate Long Bans: ", BotDetector.longBans);
+		BotDetector.enableBans = bd.getBoolean("enable_bans"); //TODO
+		AFKPGC.debug("Activate Bans: ", BotDetector.enableBans);
+		BotDetector.enableWarnings = bd.getBoolean("enable_warnings"); //TODO
+		AFKPGC.debug("Activate Warnings: ", BotDetector.enableWarnings);
 		BotDetector.maxLocations = bd.getInt("max_locations");
 		AFKPGC.debug("Max Locs to Track: ", BotDetector.maxLocations);
-		BotDetector.maxSuspects = bd.getInt("max_suspects");
-		AFKPGC.debug("Max Suspects: ", BotDetector.maxSuspects);
 		BotDetector.maxReprieve = bd.getInt("max_reprieve");
 		AFKPGC.debug("Max Reprieve Rounds: ", BotDetector.maxReprieve);
 		BotDetector.releaseRounds = bd.getInt("release_rounds");
 		AFKPGC.debug("Rounds Before Release: ", BotDetector.releaseRounds);
-		BotDetector.minBaselineMovement = bd.getInt("min_baseline");
-		AFKPGC.debug("Min Baseline Movement to not be a bot: ", BotDetector.minBaselineMovement);
 		BotDetector.longBan = bd.getLong("ban_length");
-		AFKPGC.debug("Long Ban Length: ", BotDetector.longBan);
+		AFKPGC.debug("Ban Length: ", BotDetector.longBan);
 		BotDetector.scanRadius = bd.getInt("scan_radius");
 		AFKPGC.debug("Impact Scan Radius: ", BotDetector.scanRadius);
-		BotDetector.kickNearby = bd.getBoolean("kick_nearby");
-		AFKPGC.debug("Kick Nearby: ", BotDetector.kickNearby);
-		BotDetector.kickNearbyRadius = bd.getInt("kick_nearby_radius");
-		AFKPGC.debug("Kick Nearby Radius: ", BotDetector.kickNearbyRadius);
 		BotDetector.amountOfChecksPerRun = bd.getInt("players_checked_per_run");
 		AFKPGC.debug("Players checked per run:", BotDetector.amountOfChecksPerRun);
+		BotDetector.maxKicksPerRun = bd.getInt("max_kicked_per_run");
+		AFKPGC.debug("Players checked per run:", BotDetector.amountOfChecksPerRun);
+		BotDetector.actionThreshold = (float) bd.getDouble("action_threshold");
+		AFKPGC.debug("Action Threshold:", BotDetector.actionThreshold);
 		BotDetector.safeDistance = bd.getInt("safe_distance");
-		AFKPGC.debug("Safe distance: ",BotDetector.safeDistance);
-		ConfigurationSection bdbc = bd.getConfigurationSection("bounds");
+		AFKPGC.debug("Safe distance: ",BotDetector.safeDistance); //unused but keeping
+		ConfigurationSection bdbc = bd.getConfigurationSection("bounds"); //unused but keeping
 		//BotDetector Bounds Configuration
 		BotDetector.relaxationFactor = bdbc.getDouble("relaxation_factor");
 		AFKPGC.debug("Bounding Box Relaxation Factor: ", BotDetector.relaxationFactor);

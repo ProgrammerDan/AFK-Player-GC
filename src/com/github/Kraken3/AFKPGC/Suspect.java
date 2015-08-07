@@ -12,16 +12,16 @@ public class Suspect implements Comparable<Suspect> {
 	private UUID uuid;
 	private String name;
 	private Location location;
-	private BoundResults results;
+	private Long results;
 	
-	public Suspect(UUID uuid, String name, Location location, BoundResults results) {
+	public Suspect(UUID uuid, String name, Location location, Long results) {
 		this.uuid = uuid;
 		this.name = name;
 		this.location = location;
 		this.results = results;
 	}
 
-	public void update(Location location, BoundResults results) {
+	public void update(Location location, Long results) {
 		this.location = location;
 		this.results = results;
 	}
@@ -35,7 +35,7 @@ public class Suspect implements Comparable<Suspect> {
 	public Location getLocation() {
 		return this.location;
 	}
-	public BoundResults getResults() {
+	public Long getResults() {
 		return this.results;
 	}
 

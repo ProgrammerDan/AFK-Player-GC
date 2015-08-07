@@ -22,7 +22,9 @@ bot_detector:
   # kicking_frequency is how often the bot detector runs in ticks
   kicking_frequency: 1800
   # Whether players get banned for a long time/ until the tick is high again
-  long_bans: false
+  enable_bans: false
+  # Whether Players get warnings before bans if set to true
+  enable_warnings: true
   # Completely disables banning for testing and debugging purposes
   observation_mode: false
   # Length of long ban
@@ -31,20 +33,18 @@ bot_detector:
   max_locations: 8
   # Max suspects to consider per Detector round
   max_suspects: 10
-  # Baseline movement (in MC blocks) to be considered for bot detection
-  min_baseline: 256
   # Maximum scan rounds to "ignore" a player who was previously cleared as a lag source
   max_reprieve: 10
   # Number of BotDetector rounds at good TPS before releasing lag offenders
   release_rounds: 20
   # Scan radius in chunks around location, to check for lag causes
   scan_radius: 4
-  # Kick players very close to high-profile lag sources
-  kick_nearby: true
-  # Radius to consider if kicking nearby players
-  kick_nearby_radius: 16
   # Amount of players checked per run
-  players_checked_per_run: 1
+  players_checked_per_run: 5
+  # Max players kicked per run
+  max_kicked_per_run: 4
+  # percentage of online players that need to have been scanned before kicking/warning begins
+  action_threshold: 0.8
   # Distance a player needs to move away from a lagsource to not get kicked if he is caught by the system again
   safe_distance: 128
   # Configure the threshold and individual contribution of bound types
