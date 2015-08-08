@@ -110,9 +110,9 @@ public class ConfigurationReader {
 		AFKPGC.debug("Acceptable TPS: ", BotDetector.acceptableTPS);
 		BotDetector.frequency = bd.getInt("kicking_frequency");
 		AFKPGC.debug("Detector Frequency: ", BotDetector.frequency);
-		BotDetector.enableBans = bd.getBoolean("enable_bans"); //TODO
+		BotDetector.enableBans = bd.getBoolean("enable_bans");
 		AFKPGC.debug("Activate Bans: ", BotDetector.enableBans);
-		BotDetector.enableWarnings = bd.getBoolean("enable_warnings"); //TODO
+		BotDetector.enableWarnings = bd.getBoolean("enable_warnings");
 		AFKPGC.debug("Activate Warnings: ", BotDetector.enableWarnings);
 		BotDetector.maxLocations = bd.getInt("max_locations");
 		AFKPGC.debug("Max Locs to Track: ", BotDetector.maxLocations);

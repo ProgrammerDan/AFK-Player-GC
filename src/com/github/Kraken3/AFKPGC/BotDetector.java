@@ -145,7 +145,8 @@ public class BotDetector implements Runnable {
 					LastActivity la = entry.getValue();
 
 					// Find fresh blood.
-					if (!reprieve.containsKey(playerUUID) && !topSuspectsLookup.containsKey(playerUUID)) {
+					if (!AFKPGC.immuneAccounts.contains(playerUUID) && !reprieve.containsKey(playerUUID) &&
+							!topSuspectsLookup.containsKey(playerUUID)) {
 						// do scan.
 						Location point = p.getLocation();
 						AFKPGC.debug("Player ", playerUUID, " (", p.getName(), ") at ", point,
