@@ -114,10 +114,7 @@ public class LagScanner {
 				long chunkId = ((long) x << 32L) + (long) z;
 				LagScanner.Result result = lcache.get(chunkId);
 				if (result != null && result.lagContrib >= unloadThreshold) {
-					Chunk nC = chunkWorld.getChunkAt(x, z);
-					if (nC != null) {
-						nC.unload(true, true);
-					}
+					chunkWorld.unloadChunkRequest(x, z, true);
 				}
 			}
 		}
@@ -197,15 +194,13 @@ public class LagScanner {
 			// record the result.
 			result = new LagScanner.Result(world, chunkId, chunk.getX(), chunk.getZ(), totalCost, now);
 			worldCache.put(chunkId, result);
-			AFKPGC.debug("The chunk ", chunk.getX(), ", ", chunk.getZ(), " measures ", result.lagContrib, " lag sources, details: ", sb);
+			AFKPGC.debug("The chunk ", chunk.getX(), ", ", chunk.getZ(), " measures ", result.lagContrib, " lag sources", result.lagContrib < normalChunkValue ? "(ignored)" : "",", details: ", sb);
 		}
 		else {
-			AFKPGC.debug("The chunk ", chunk.getX(), ", ", chunk.getZ(), " was loaded from the cache with a measure of ", result.lagContrib, " lag sources");
+			AFKPGC.debug("The chunk ", chunk.getX(), ", ", chunk.getZ(), " was loaded from the cache with a measure of ", result.lagContrib, " lag sources", result.lagContrib < normalChunkValue ? " (ignored)": "");
 		}
 		if (result.lagContrib < normalChunkValue) {
-			AFKPGC.debug("The chunk ", chunk.getX(), ", ", chunk.getZ(), " was ignored for the lag "
-					+ "contribution, because it was below the normal chunk value");
-			return new LagScanner.Result(null, 0, 0, 0, 0L, 0L);  
+			return new LagScanner.Result(null, 0, 0, 0, 0, 0);
 			//this is only used to read the lag contribution and does its job to deliver that
 		}
 		return result;
