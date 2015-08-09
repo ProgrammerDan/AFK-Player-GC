@@ -64,7 +64,7 @@ lag_scanner:
   # Multiplier of the lag threshold that needs to be exceeded to be banned right away
   extreme_lag_threshold_multiplier: 4.5
   # Reduction Factor (threshold * unload should be < threshold) that must be exceeded to attempt to force unload chunks
-  unload_threshold_factor: 0.17
+  unload_threshold_factor: 0.14
   # Flag indicating if chunk force unloading on kick should be active
   perform_unload: true
   # Whether the lag scanner should keep scanning if it already determined someone is causing lag
