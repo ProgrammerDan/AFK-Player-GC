@@ -15,10 +15,10 @@ public class GetLongBans extends AbstractCommand {
 
 	@Override
 	public boolean onCommand(CommandSender sender, List<String> args) {
-		if (BotDetector.longBans)
-			sender.sendMessage("Long bans are currently enabled in the bot detector");
+		if (BotDetector.enableBans)
+			sender.sendMessage("Bans are currently enabled in the bot detector");
 		else
-			sender.sendMessage("Long bans are currently not enabled in the bot detector");
+			sender.sendMessage("Bans are currently not enabled in the bot detector");
 		return true;
 	}
 }

@@ -33,20 +33,22 @@ public class LagScanner {
 	private Location center;
 	private Integer radius;
 	private ScanCallback<Boolean> callback;
+	private boolean noCache;
 
 	private Boolean isLagSource;
 	private Long lagCompute;
 
-	public LagScanner(Location center, Integer radius, ScanCallback<Boolean> callback) {
+	public LagScanner(Location center, Integer radius, ScanCallback<Boolean> callback, boolean noCache) {
 		this.center = center;
 		this.radius = radius;
 		this.callback = callback;
 		this.isLagSource = null;
 		this.lagCompute = null;
+		this.noCache = noCache;
 	}
 
-	public static LagScanner instance(Location center, Integer radius, ScanCallback<Boolean> callback ){
-		return new LagScanner(center, radius, callback);
+	public static LagScanner instance(Location center, Integer radius, ScanCallback<Boolean> callback, boolean noCache){
+		return new LagScanner(center, radius, callback, noCache);
 	}
 
 	public void run() {
@@ -132,7 +134,7 @@ public class LagScanner {
 		}
 
 		LagScanner.Result result = null;
-		if (worldCache.containsKey(chunkId)) {
+		if (!noCache && worldCache.containsKey(chunkId)) {
 			LagScanner.Result cachedResult = worldCache.get(chunkId);
 			if (cachedResult.lastUpdate + cacheTimeout > now) {
 				// hasn't exceeded cache timeout, so use it.
@@ -194,14 +196,15 @@ public class LagScanner {
 			// record the result.
 			result = new LagScanner.Result(world, chunkId, chunk.getX(), chunk.getZ(), totalCost, now);
 			worldCache.put(chunkId, result);
-			AFKPGC.debug("The chunk ", chunk.getX(), ", ", chunk.getZ(), " measures ", result.lagContrib, " lag sources", result.lagContrib < normalChunkValue ? "(ignored)" : "",", details: ", sb);
+			AFKPGC.debug("The chunk ", chunk.getX(), ", ", chunk.getZ(), " measures ", result.lagContrib, " lag sources",
+					result.lagContrib < normalChunkValue ? " (ignored)" : "",", details: ", sb);
 		}
 		else {
-			AFKPGC.debug("The chunk ", chunk.getX(), ", ", chunk.getZ(), " was loaded from the cache with a measure of ", result.lagContrib, " lag sources", result.lagContrib < normalChunkValue ? " (ignored)": "");
+			AFKPGC.debug("The chunk ", chunk.getX(), ", ", chunk.getZ(), " was loaded from the cache with a measure of ", 
+					result.lagContrib, " lag sources", result.lagContrib < normalChunkValue ? " (ignored)": "");
 		}
 		if (result.lagContrib < normalChunkValue) {
-			return new LagScanner.Result(null, 0, 0, 0, 0, 0);
-			//this is only used to read the lag contribution and does its job to deliver that
+			return new LagScanner.Result(null, 0, 0, 0, 0L, 0L);
 		}
 		return result;
 	}

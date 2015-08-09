@@ -9,42 +9,40 @@ debug: true
 #   Use 0 as an amount of seconds when you don't want to kick people.
 
 kick_thresholds:
-  - When 81 to 500 players online kick after 60 seconds
-  - When 51 to 80  players online kick after 120 seconds
-  - When 2  to 50  players online kick after 240 seconds
-  - When 1  to 1  players online kick after 3600 seconds  
+  - When 101 to 500  players online kick after 150 seconds
+  - When 76 to 100  players online kick after 300 seconds
+  - When 51 to 75  players online kick after 900 seconds
+  - When 1  to 50  players online kick after 7200 seconds
   
 bot_detector:
   # Once the TPS get below acceptable_TPS, the BotDetector starts culling potential lag causer.
   acceptable_TPS: 17.5
-  #Once the tps goes below this value, locations start to get logged
-  starting_TPS: 18
   # kicking_frequency is how often the bot detector runs in ticks
   kicking_frequency: 1800
   # Whether players get banned for a long time/ until the tick is high again
-  long_bans: false
+  enable_bans: false
+  # Whether Players get warnings before bans if set to true
+  enable_warnings: true
   # Completely disables banning for testing and debugging purposes
   observation_mode: false
   # Length of long ban
-  ban_length: 21600000
+  ban_length: 5400000
   # Max locations per player to store while measuring movement patterns
-  max_locations: 8
+  max_locations: 10
   # Max suspects to consider per Detector round
   max_suspects: 10
-  # Baseline movement (in MC blocks) to be considered for bot detection
-  min_baseline: 256
   # Maximum scan rounds to "ignore" a player who was previously cleared as a lag source
-  max_reprieve: 10
+  max_reprieve: 20
   # Number of BotDetector rounds at good TPS before releasing lag offenders
-  release_rounds: 20
+  release_rounds: 40
   # Scan radius in chunks around location, to check for lag causes
-  scan_radius: 4
-  # Kick players very close to high-profile lag sources
-  kick_nearby: true
-  # Radius to consider if kicking nearby players
-  kick_nearby_radius: 16
+  scan_radius: 3
   # Amount of players checked per run
-  players_checked_per_run: 1
+  players_checked_per_run: 5
+  # Max players kicked per run
+  max_kicked_per_run: 4
+  # percentage of online players that need to have been scanned before kicking/warning begins
+  action_threshold: 0.8
   # Distance a player needs to move away from a lagsource to not get kicked if he is caught by the system again
   safe_distance: 128
   # Configure the threshold and individual contribution of bound types
@@ -62,11 +60,11 @@ lag_scanner:
   # Length of time to cache individual chunk results (in milliseconds)
   cache_timeout: 1800000
   # Summation threshold of entity and tile costs for lag flag
-  lag_threshold: 400
+  lag_threshold: 750
   # Multiplier of the lag threshold that needs to be exceeded to be banned right away
-  extreme_lag_threshold_multiplier: 2.5
+  extreme_lag_threshold_multiplier: 4.5
   # Reduction Factor (threshold * unload should be < threshold) that must be exceeded to attempt to force unload chunks
-  unload_threshold_factor: .25
+  unload_threshold_factor: 0.17
   # Flag indicating if chunk force unloading on kick should be active
   perform_unload: true
   # Whether the lag scanner should keep scanning if it already determined someone is causing lag
@@ -77,52 +75,55 @@ lag_scanner:
   normal_chunk_value: 100
   # Per tickable block cost 
   tick_block:
-    BANNER: 1
-    BEACON: 5
+    PISTON_MOVING_PIECE: 16
+    PISTON_EXTENSION: 8
+    BANNER: 0
+    BEACON: 3
     BREWING_STAND: 1
-    MOB_SPAWNER: 3
-    DROPPER: 3
+    MOB_SPAWNER: 5
+    DROPPER: 5
     JUKEBOX: 1
     NOTE_BLOCK: 1
-    SIGN: 1
+    SIGN: 0
     HOPPER: 8
-    DISPENSER: 3
-    FURNACE: 3
+    DISPENSER: 5
+    FURNACE: 2
     BURNING_FURNACE: 4
-    CHEST: 1
-    ACTIVATOR_RAIL: 1
+    CHEST: 0
+    TRAPPED_CHEST: 0
+    ENDER_CHEST: 0
+    ACTIVATOR_RAIL: 2
     DETECTOR_RAIL: 1
     DAYLIGHT_DETECTOR: 1
     DAYLIGHT_DETECTOR_INVERTED: 1
     DIODE: 1
     DIODE_BLOCK_OFF: 1
-    DIODE_BLOCK_ON: 1
-    PISTON_BASE: 2
-    PISTON_STICKY_BASE: 2
-    PISTON_MOVING_PIECE: 8
-    PISTON_EXTENSION: 4
-    POWERED_RAIL: 1
+    DIODE_BLOCK_ON: 2
+    PISTON_BASE: 8
+    PISTON_STICKY_BASE: 8
+    POWERED_RAIL: 2
     REDSTONE_COMPARATOR: 1
     REDSTONE_COMPARATOR_OFF: 1
-    REDSTONE_COMPARATOR_ON: 1
+    REDSTONE_COMPARATOR_ON: 2
     REDSTONE_LAMP_OFF: 1
-    REDSTONE_LAMP_ON: 1
+    REDSTONE_LAMP_ON: 2
     REDSTONE_TORCH_OFF: 1
-    REDSTONE_TORCH_ON: 1
-    WALL_BANNER: 1
-    WALL_SIGN: 1
-    SIGN_POST: 1
+    REDSTONE_TORCH_ON: 2
+    WALL_BANNER: 0
+    WALL_SIGN: 0
+    SIGN_POST: 0
+    ITEM_FRAME: 0
   # Per tickable entity cost
   tick_entity:
     BAT: 1
-    FALLING_BLOCK: 4
-    DROPPED_ITEM: 1
     ARMOR_STAND: 1
-    BOAT: 2
+    BOAT: 4
+    FALLING_BLOCK: 16
+    DROPPED_ITEM: 1
     CAVE_SPIDER: 1
     CHICKEN: 1
     COW: 1
-    CREEPER: 1
+    CREEPER: 2
     ENDERMAN: 2
     ENDERMITE: 1
     GHAST: 2
@@ -130,29 +131,29 @@ lag_scanner:
     HORSE: 1
     IRON_GOLEM: 2
     MAGMA_CUBE: 2
-    MINECART: 1
+    MINECART: 3
     MINECART_CHEST: 1
-    MINECART_FURNACE: 2
-    MINECART_HOPPER: 5
-    MINECART_TNT: 3
+    MINECART_FURNACE: 3
+    MINECART_HOPPER: 8
+    MINECART_TNT: 6
     MUSHROOM_COW: 1
-    OCELOT: 1
-    PAINTING: 1
+    OCELOT: 2
+    PAINTING: 0
     PIG: 1
     PIG_ZOMBIE: 1
-    PRIMED_TNT: 3
+    PRIMED_TNT: 5
     RABBIT: 1
     SHEEP: 1
     SILVERFISH: 2
     SKELETON: 2
-    SLIME: 2
+    SLIME: 3
     SNOWMAN: 2
     SPIDER: 1
     SQUID: 1
     VILLAGER: 1
-    WITCH: 2
-    WITHER: 3
-    WOLF: 1
+    WITCH: 3
+    WITHER: 5
+    WOLF: 2
     ZOMBIE: 1
 
 # warnings field reads the first number, the rest is text to be sent to a player
