@@ -127,7 +127,7 @@ public class ConfigurationReader {
 		BotDetector.amountOfChecksPerRun = bd.getInt("players_checked_per_run");
 		AFKPGC.debug("Players checked per run:", BotDetector.amountOfChecksPerRun);
 		BotDetector.maxKicksPerRun = bd.getInt("max_kicked_per_run");
-		AFKPGC.debug("Players checked per run:", BotDetector.amountOfChecksPerRun);
+		AFKPGC.debug("Players kicked per run (max):", BotDetector.maxKicksPerRun);
 		BotDetector.actionThreshold = (float) bd.getDouble("action_threshold");
 		AFKPGC.debug("Action Threshold:", BotDetector.actionThreshold);
 		BotDetector.safeDistance = bd.getInt("safe_distance");
