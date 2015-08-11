@@ -201,12 +201,11 @@ public class BotDetector implements Runnable {
 						lastActivities.size(), " online/tracking, which exceeds ", 
 						(int) Math.ceil(lastActivities.size() * actionThreshold), " so warning and kicking.");
 				HashSet<Suspect> updates = new HashSet<Suspect>();
+				Map<Suspect, Long> removeCellmates = new HashMap<Suspect, Long>();
 				int curKicks = 0;
 				// we're ready to warn or kick the top "baddies".
-				NavigableSet<Long> scanSlots = topSuspects.descendingKeySet();
-				for (Long cell : scanSlots) {
-					Set<Suspect> cellmates = topSuspects.get(cell);
-					for (Suspect suspect : cellmates) {
+				for (Long cell : topSuspects.descendingKeySet()) {
+					for (Suspect suspect : topSuspects.get(cell)) {
 						// rescan and update/remove based on results.
 						UUID suspectUUID = suspect.getUUID();
 
@@ -217,7 +216,6 @@ public class BotDetector implements Runnable {
 
 							Location point = p.getLocation();
 
-							// TODO: check justScanned before scanning.
 							boolean recent = justScanned.contains(suspectUUID);
 							boolean source = true;
 
@@ -235,10 +233,7 @@ public class BotDetector implements Runnable {
 							if (source) {
 								curKicks ++;
 								if (oldScore != suspect.getResults()) {
-									cellmates.remove(suspect);
-									if (cellmates.size() < 1) {
-										scanSlots.remove(cell);
-									}
+									removeCellmates.put(suspect, oldScore);
 									updates.add(suspect);
 								}
 								if (warnedPlayers.contains(suspect)) {
@@ -250,10 +245,7 @@ public class BotDetector implements Runnable {
 										if (updates.contains(suspect)) {
 											updates.remove(suspect); // cancel update
 										} else {
-											cellmates.remove(suspect);
-											if (cellmates.size() < 1) {
-												scanSlots.remove(cell);
-											}
+											removeCellmates.put(suspect, oldScore);
 										}
 										topSuspectsLookup.remove(suspectUUID);
 									} else{
@@ -273,10 +265,7 @@ public class BotDetector implements Runnable {
 									}
 								}
 							} else { // "good" now.
-								cellmates.remove(suspect);
-								if (cellmates.size() < 1) {
-									scanSlots.remove(cell);
-								}
+								removeCellmates.put(suspect, oldScore);
 								topSuspectsLookup.remove(suspectUUID);
 								AFKPGC.debug("Player ", suspectUUID, " (", suspect.getName(), ") at ",
 										suspect.getLocation(), " no longer exceeds baseline lag threshold [", 
@@ -295,7 +284,19 @@ public class BotDetector implements Runnable {
 						break;
 					}
 				}
-				// update update
+				// remove removes and alter alters
+				for (Map.Entry<Suspect, Long> cellmate : removeCellmates.entrySet()) {
+					Set<Suspect> cm = topSuspects.get(cellmate.getValue());
+					if (cm != null) { // else already gone...?
+						cm.remove(cellmate.getKey());
+						if (cm.size() <= 0) { // none left, purge
+							topSuspects.remove(cellmate.getValue());
+						}
+					}
+				}
+				removeCellmates.clear();
+				removeCellmates = null;
+				// update updates
 				for (Suspect update : updates) {
 					Set<Suspect> cellmates = topSuspects.get(update.getResults());
 					if (cellmates == null) {
