@@ -274,6 +274,10 @@ public class BotDetector implements Runnable {
 						} else {
 							AFKPGC.debug("Player ", suspectUUID, " (", suspect.getName(), 
 									") is likely offline, skipping recheck for now");
+							// remove from warned list, if there.
+							if (warnedPlayers.contains(suspect)) {
+								warnedPlayers.remove(suspect);
+							}
 						} // TODO remove after N skips?
 
 						if (curKicks >= maxKicksPerRun) {
