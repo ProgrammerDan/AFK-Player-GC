@@ -57,17 +57,32 @@ public class BotDetector implements Runnable {
 	/** Boolean indicator if warnings are active. Bans can be active without warnings, for instance. */
 	public static boolean enableWarnings;
 
+	public static String warningMessage;
+	public static String banMessage;
+	public static List<Long> banLengths;
+	public static int warningCount;
+
 	HashMap<UUID, Suspect> topSuspectsLookup; // UUID lookup.
 	TreeMap<Long, Set<Suspect>> topSuspects;
 	HashMap<UUID, Integer> reprieve; // temp. cleared suspects
 
 	int goodRounds = 0;
 	
+	/**
+	 * Suspect is key, count of warnings before either ban or clear is value
+	 */
 	public static HashSet<Suspect> warnedPlayers = new HashSet<Suspect>();
+	public static HashMap<UUID, Integer> offlineWarnings = new HashMap<UUID, Integer>();
+
 	/* this is needed as a separated list, so we know the difference between players
 	 * who were banned by AFKPGC and players who were banned for other reasons */
 	//TODO: convert to UUID
 	public static LinkedList<String> bannedPlayers = new LinkedList<String>();
+
+	/**
+	 * UUID is key, count of bans on record is value. Used to match against banLength.
+	 */
+	HashMap<UUID, Integer> banCounts = new HashMap<UUID, Integer>();
 
 	// ban after names not ips
 	static BanList banList = AFKPGC.plugin.getServer().getBanList(BanList.Type.NAME);
@@ -104,6 +119,9 @@ public class BotDetector implements Runnable {
 		}
 		if (topSuspectsLookup == null) {
 			topSuspectsLookup = new HashMap<UUID, Suspect>();
+		}
+		if (banCounts == null) {
+			banCounts = new HashMap<UUID, Integer>();
 		}
 
 		if (reprieve == null) {
@@ -156,16 +174,21 @@ public class BotDetector implements Runnable {
 						LagScanner ls = new LagScanner(point, scanRadius, null, false);
 						ls.run(); // TODO: move this and ban results to thread.
 						if (ls.isLagSource()) {
-							Suspect crim = new Suspect(playerUUID, p.getName(), point, ls.getLagCompute());
-							Set<Suspect> cellmates = topSuspects.get(ls.getLagCompute());
-							if (cellmates == null) {
-								cellmates = new HashSet<Suspect>();
-								topSuspects.put(ls.getLagCompute(), cellmates);
+							if (ls.getLagCompute() <= LagScanner.innocentThreshold && !banCounts.containsKey(playerUUID)) {
+								AFKPGC.debug("Player ", playerUUID, " (", p.getName(), ") at ", point, 
+									" has no prior bans, is below innocent threshold [", ls.getLagCompute(), "]. No reprieve, no kick, no watch list.");
+							} else {
+								Suspect crim = new Suspect(playerUUID, p.getName(), point, ls.getLagCompute());
+								Set<Suspect> cellmates = topSuspects.get(ls.getLagCompute());
+								if (cellmates == null) {
+									cellmates = new HashSet<Suspect>();
+									topSuspects.put(ls.getLagCompute(), cellmates);
+								}
+								cellmates.add(crim);
+								topSuspectsLookup.put(playerUUID, crim);
+								AFKPGC.debug("Player ", playerUUID, " (", crim.getName(), ") at ", point,
+										" exceeded baseline lag threshold [", ls.getLagCompute(), "], added to watch list");
 							}
-							cellmates.add(crim);
-							topSuspectsLookup.put(playerUUID, crim);
-							AFKPGC.debug("Player ", playerUUID, " (", crim.getName(), ") at ", point,
-									" exceeded baseline lag threshold [", ls.getLagCompute(), "], added to watch list");
 						} else {
 							reprieve.put(playerUUID, maxReprieve);
 							AFKPGC.debug("Player ", playerUUID, " (", p.getName(), ") at ", point, 
@@ -242,6 +265,7 @@ public class BotDetector implements Runnable {
 										giveOutBan(suspect);
 										// Once banned, remove from top list, update, and such.
 										warnedPlayers.remove(suspect);
+										offlineWarnings.remove(suspectUUID);
 										if (updates.contains(suspect)) {
 											updates.remove(suspect); // cancel update
 										} else {
@@ -267,18 +291,35 @@ public class BotDetector implements Runnable {
 							} else { // "good" now.
 								removeCellmates.put(suspect, oldScore);
 								topSuspectsLookup.remove(suspectUUID);
+								warnedPlayers.remove(suspect);
+								offlineWarnings.remove(suspectUUID);
 								AFKPGC.debug("Player ", suspectUUID, " (", suspect.getName(), ") at ",
 										suspect.getLocation(), " no longer exceeds baseline lag threshold [", 
 										oldScore, "->thresh], removed from watch list");
 							}
 						} else {
-							AFKPGC.debug("Player ", suspectUUID, " (", suspect.getName(), 
-									") is likely offline, skipping recheck for now");
 							// remove from warned list, if there.
 							if (warnedPlayers.contains(suspect)) {
-								warnedPlayers.remove(suspect);
+								Integer warnCount = offlineWarnings.get(suspect.getUUID());
+								if (warnCount == null) {
+									warnCount = 1;
+								} else {
+									warnCount = warnCount + 1;
+								}
+								offlineWarnings.put(suspect.getUUID(), warnCount);
+								if (warnCount <= warningCount) {
+									warnedPlayers.remove(suspect);
+									AFKPGC.debug("Player ", suspectUUID, " (", suspect.getName(), 
+											") is likely offline, skipping recheck for now, warning staged.");
+								} else { // else, don't remove.
+									AFKPGC.debug("Player ", suspectUUID, " (", suspect.getName(), 
+											") is likely offline, skipping recheck for now, no more chances.");
+								}
+							} else {
+								AFKPGC.debug("Player ", suspectUUID, " (", suspect.getName(), 
+										") is likely offline, skipping recheck for now");
 							}
-						} // TODO remove after N skips?
+						}
 
 						if (curKicks >= maxKicksPerRun) {
 							break;
@@ -314,7 +355,7 @@ public class BotDetector implements Runnable {
 			} else {
 				AFKPGC.debug("Scanned ", topSuspectsLookup.size() + reprieve.size(), " players, ", 
 						lastActivities.size(), " online/tracking, need to reach ", 
-						(int) Math.ceil(lastActivities.size() * actionThreshold), " before warning and kicking.");
+						(int) Math.floor(lastActivities.size() * actionThreshold), " before warning and kicking.");
 			}
 			justScanned.clear();
 			justScanned = null;
@@ -357,10 +398,23 @@ public class BotDetector implements Runnable {
     	if (!enableBans) {
     		return;
     	}
+		Integer banCount = banCounts.get(s.getUUID());
+		if (banCount == null) {
+			banCount = 0;
+		} else {
+			banCount = banCount + 1;
+		}
+		banCounts.put(s.getUUID(), banCount);
+		if (banCount >= banLengths.size()) {
+			banCount = banLengths.size() - 1;
+		}
+		Long banLength = banLengths.get(banCount);
+		if (banLength == null) {
+			banLength = longBan; // keep it as worst case or default.
+		}
     	Date currentDate=new Date();
-    	BanEntry leBan = banList.addBan( s.getName(),
-	    		"You have been banned due to causing lag, in spite of a warning to leave the area",
-				new Date(currentDate.getTime() + longBan), null); // long ban.
+    	BanEntry leBan = banList.addBan( s.getName(), banMessage,
+				new Date(currentDate.getTime() + banLength), null); // long ban.
     	Player p = Bukkit.getPlayer(s.getUUID());
 	    if (p != null) {
 			LagScanner.unloadChunks(p.getLocation(), scanRadius);
@@ -368,8 +422,8 @@ public class BotDetector implements Runnable {
 		}
 		bannedPlayers.add(s.getName());
 		addToBanfile(s.getName());
-		AFKPGC.debug("Player ", s.getUUID(), " (", s.getName(), ") long banned for ",
-				longBan," confirmed lag source.");
+		AFKPGC.debug("Player ", s.getUUID(), " (", s.getName(), ") banned for ",
+				banLength,"ms, confirmed lag source, incident #", (banCounts.get(s.getUUID()) + 1));
 	}
     
     private void giveOutBan(Player p) {
@@ -398,9 +452,7 @@ public class BotDetector implements Runnable {
 	
 	public void warnPlayer(Player p) {
 		if (p != null) {
-			p.sendMessage("[WARNING] You are in a region with a high concentration of lag sources."
-					+ " Please immediately depart the area (leave render distance) or you will be "
-					+ "temporarily banned.");
+			p.sendMessage(warningMessage);
 			AFKPGC.debug("Player ", p.getUniqueId(), " (", p.getName(), ") was notified of presence in lag source");
 		}
 		

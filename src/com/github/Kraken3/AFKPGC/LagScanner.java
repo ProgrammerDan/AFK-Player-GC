@@ -26,6 +26,7 @@ public class LagScanner {
 	public static long lagSourceThreshold;
 	public static long extremeLagSourceThreshold;
 	public static long unloadThreshold;
+	public static long innocentThreshold;
 	public static boolean performUnload;
 	public static boolean fullScan;
 	public static long normalChunkValue;

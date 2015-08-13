@@ -25,26 +25,39 @@ bot_detector:
   enable_warnings: true
   # Completely disables banning for testing and debugging purposes
   observation_mode: false
-  # Length of long ban
+  # Length of "default" long ban
   ban_length: 5400000
   # Max locations per player to store while measuring movement patterns
   max_locations: 10
   # Max suspects to consider per Detector round
   max_suspects: 10
   # Maximum scan rounds to "ignore" a player who was previously cleared as a lag source
-  max_reprieve: 20
+  max_reprieve: 10
   # Number of BotDetector rounds at good TPS before releasing lag offenders
-  release_rounds: 40
+  release_rounds: 30
   # Scan radius in chunks around location, to check for lag causes
   scan_radius: 3
   # Amount of players checked per run
-  players_checked_per_run: 5
+  players_checked_per_run: 8
   # Max players kicked per run
   max_kicked_per_run: 4
   # percentage of online players that need to have been scanned before kicking/warning begins
   action_threshold: 0.8
   # Distance a player needs to move away from a lagsource to not get kicked if he is caught by the system again
   safe_distance: 128
+  # The message to send to the player being banned.
+  ban_message: §4You have been banned due to causing lag, in spite of a warning to leave the area.
+  # The warning message to send to a player found near lag sources.
+  warning_message: §4[WARNING] You are in a region with a high concentration of lag sources. Please immediately depart the area (leave render distance) or you will be temporarily banned.
+  # The number of times to send a warning to a player who repeatedly logs off after a warning, before banning.
+  warning_repeat: 3
+  # The lenths of bans. As a player is banned more times, the ban length goes up. All is clear on server reset.
+  ban_lengths:
+    - 150000
+    - 300000
+    - 900000
+    - 1800000
+    - 3600000
   # Configure the threshold and individual contribution of bound types
   bounds:
     relaxation_factor: 0.1
@@ -60,11 +73,13 @@ lag_scanner:
   # Length of time to cache individual chunk results (in milliseconds)
   cache_timeout: 1800000
   # Summation threshold of entity and tile costs for lag flag
-  lag_threshold: 750
+  lag_threshold: 700
   # Multiplier of the lag threshold that needs to be exceeded to be banned right away
   extreme_lag_threshold_multiplier: 4.5
   # Reduction Factor (threshold * unload should be < threshold) that must be exceeded to attempt to force unload chunks
-  unload_threshold_factor: 0.14
+  unload_threshold_factor: 0.10
+  # Innocents Threshold. If not prior banned, offer a more "relaxed" threshold. Applied as a multiplier to Threshold.
+  innocent_boundary: 1.15
   # Flag indicating if chunk force unloading on kick should be active
   perform_unload: true
   # Whether the lag scanner should keep scanning if it already determined someone is causing lag
@@ -72,7 +87,7 @@ lag_scanner:
   full_scan: true
   # If a chunk's lag count is below this value, it is considered "normal" and not taken into account for the
   # total lag count calculation
-  normal_chunk_value: 100
+  normal_chunk_value: 120
   # Per tickable block cost 
   tick_block:
     PISTON_MOVING_PIECE: 16
@@ -81,14 +96,14 @@ lag_scanner:
     BEACON: 3
     BREWING_STAND: 1
     MOB_SPAWNER: 5
-    DROPPER: 5
+    DROPPER: 4
     JUKEBOX: 1
     NOTE_BLOCK: 1
     SIGN: 0
     HOPPER: 8
-    DISPENSER: 5
-    FURNACE: 2
-    BURNING_FURNACE: 4
+    DISPENSER: 4
+    FURNACE: 1
+    BURNING_FURNACE: 3
     CHEST: 0
     TRAPPED_CHEST: 0
     ENDER_CHEST: 0
@@ -169,7 +184,6 @@ warnings:
   - 600 §4AFK Plugin - You'll be kicked in 10 minutes
   - 1800 §4AFK Plugin - You'll be kicked in 30 minutes
   - 3600 §4AFK Plugin - You'll be kicked in 1 hour
-  
   
 # Yay, rainbows! :)  
 kick_message: §cYou §6were §ekicked §adue §9to in§5activity
