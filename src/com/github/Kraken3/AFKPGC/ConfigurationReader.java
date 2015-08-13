@@ -132,6 +132,19 @@ public class ConfigurationReader {
 		AFKPGC.debug("Action Threshold:", BotDetector.actionThreshold);
 		BotDetector.safeDistance = bd.getInt("safe_distance");
 		AFKPGC.debug("Safe distance: ",BotDetector.safeDistance); //unused but keeping
+		BotDetector.warningMessage = conf.getString("warning_message");
+		AFKPGC.debug("Warning message: ",BotDetector.warningMessage);
+		BotDetector.warningCount = conf.getInt("warning_repeat");
+		AFKPGC.debug("Warning repeat: ",BotDetector.warningCount);
+		BotDetector.banMessage = conf.getString("ban_message");
+		AFKPGC.debug("Ban message: ",BotDetector.banMessage);
+		List<Long> banLengths = conf.getLongList("ban_lengths");
+		BotDetector.banLengths = banLengths;
+		AFKPGC.debug("Ban Lengths: ");
+		for (Long i : banLengths) {
+			AFKPGC.debug("  ", i);
+		}
+		
 		ConfigurationSection bdbc = bd.getConfigurationSection("bounds"); //unused but keeping
 		//BotDetector Bounds Configuration
 		BotDetector.relaxationFactor = bdbc.getDouble("relaxation_factor");
@@ -174,6 +187,8 @@ public class ConfigurationReader {
 		LagScanner.unloadThreshold = (long) (LagScanner.lagSourceThreshold 
 				* ls.getDouble("unload_threshold_factor"));
 		AFKPGC.debug("LagScanner Chunk Unload Threshold: ",LagScanner.unloadThreshold);
+		LagScanner.innocentThreshold = (long) (LagScanner.lagSourceThreshold * ls.getDouble("innocent_boundary"));
+		AFKPGC.debug("LagScanner Innocent Threshold: ",LagScanner.innocentThreshold);
 		LagScanner.performUnload = ls.getBoolean("perform_unload");
 		AFKPGC.debug("LagScanner Perform Chunk Unload: ", LagScanner.performUnload);
 		LagScanner.normalChunkValue = ls.getInt("normal_chunk_value");
