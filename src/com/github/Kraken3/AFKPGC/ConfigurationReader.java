@@ -132,13 +132,13 @@ public class ConfigurationReader {
 		AFKPGC.debug("Action Threshold:", BotDetector.actionThreshold);
 		BotDetector.safeDistance = bd.getInt("safe_distance");
 		AFKPGC.debug("Safe distance: ",BotDetector.safeDistance); //unused but keeping
-		BotDetector.warningMessage = conf.getString("warning_message");
+		BotDetector.warningMessage = bd.getString("warning_message");
 		AFKPGC.debug("Warning message: ",BotDetector.warningMessage);
-		BotDetector.warningCount = conf.getInt("warning_repeat");
+		BotDetector.warningCount = bd.getInt("warning_repeat");
 		AFKPGC.debug("Warning repeat: ",BotDetector.warningCount);
-		BotDetector.banMessage = conf.getString("ban_message");
+		BotDetector.banMessage = bd.getString("ban_message");
 		AFKPGC.debug("Ban message: ",BotDetector.banMessage);
-		List<Long> banLengths = conf.getLongList("ban_lengths");
+		List<Long> banLengths = bd.getLongList("ban_lengths");
 		BotDetector.banLengths = banLengths;
 		AFKPGC.debug("Ban Lengths: ");
 		for (Long i : banLengths) {

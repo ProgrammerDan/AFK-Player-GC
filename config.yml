@@ -15,6 +15,10 @@ kick_thresholds:
   - When 1  to 50  players online kick after 7200 seconds
   
 bot_detector:
+  # Aggressive TPS. Above this but below acceptable, applies a "progressive" relaxation on top of other factors.
+  aggressive_TPS: 15
+  # Max Relaxation Factor. This value is interpolated to 1 over the acceptable to aggressive TPS range.
+  max_relaxation: 1.2
   # Once the TPS get below acceptable_TPS, the BotDetector starts culling potential lag causer.
   acceptable_TPS: 17.5
   # kicking_frequency is how often the bot detector runs in ticks
