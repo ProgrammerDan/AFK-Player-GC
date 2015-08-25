@@ -47,6 +47,8 @@ public class BotDetector implements Runnable {
 	public static int amountOfChecksPerRun;
 	public static int maxKicksPerRun;//TODO
 	public static int safeDistance;
+	/** How often players should be warned, if alwaysWarn is enabled and the tick is good */
+	public static int reminderInterval;
 	/** Number of people scanned between suspects and reprieve list before kicks begin, as a function
 	  * of online players. */
 	public static float actionThreshold;
@@ -56,8 +58,14 @@ public class BotDetector implements Runnable {
 
 	/** Boolean indicator if warnings are active. Bans can be active without warnings, for instance. */
 	public static boolean enableWarnings;
-
+	/**Allows to give out warnings to players in laggy areas, even if the tps is high	 */
+	public static boolean alwaysWarn;
+	
+	/** Message sent to a player if he is in a laggy area, while the tick is low*/
 	public static String warningMessage;
+	
+	/** Message sent to a player if he is in a laggy area, but the tick is good, just to remind him*/
+	public static String friendlyWarningMessage;
 	public static String banMessage;
 	public static List<Long> banLengths;
 	public static int warningCount;
@@ -67,6 +75,8 @@ public class BotDetector implements Runnable {
 	HashMap<UUID, Integer> reprieve; // temp. cleared suspects
 
 	int goodRounds = 0;
+	
+	int reminderCounter=0;
 	
 	/**
 	 * Suspect is key, count of warnings before either ban or clear is value
@@ -114,6 +124,9 @@ public class BotDetector implements Runnable {
 	}
 
 	public synchronized void doDetector() {
+		if (currentTPS >= acceptableTPS && alwaysWarn) {
+			reminderCounter++;
+		}
 		if (topSuspects == null) {
 			topSuspects = new TreeMap<Long, Set<Suspect>>();
 		}
@@ -149,7 +162,10 @@ public class BotDetector implements Runnable {
 		currentTPS = TpsReader.getTPS();
 		AFKPGC.debug("Bot Detector Running, TPS is: ", currentTPS);
 		Map<UUID, LastActivity> lastActivities = LastActivity.lastActivities;
-		if (currentTPS < acceptableTPS) {
+		if (currentTPS < acceptableTPS || (alwaysWarn && reminderCounter == reminderInterval )) {
+			if (reminderCounter == reminderInterval) {
+				reminderCounter = 0;
+			}
 			goodRounds = 0;
 			int scanCount = 0;
 			HashSet<UUID> justScanned = new HashSet<UUID>();
@@ -259,8 +275,9 @@ public class BotDetector implements Runnable {
 									removeCellmates.put(suspect, oldScore);
 									updates.add(suspect);
 								}
-								if (warnedPlayers.contains(suspect)) {
-									// kick, add to ban list.
+								if (warnedPlayers.contains(suspect) && currentTPS < acceptableTPS) {
+									// kick, add to ban list, additional tps check needed here, in case always warning is enabled and
+									// the tps is good right now
 									if (enableBans && !observationMode) {
 										giveOutBan(suspect);
 										// Once banned, remove from top list, update, and such.
@@ -452,7 +469,11 @@ public class BotDetector implements Runnable {
 	
 	public void warnPlayer(Player p) {
 		if (p != null) {
-			p.sendMessage(warningMessage);
+			if (currentTPS < acceptableTPS) {
+				p.sendMessage(warningMessage); }
+			else {
+				p.sendMessage(friendlyWarningMessage);
+			}
 			AFKPGC.debug("Player ", p.getUniqueId(), " (", p.getName(), ") was notified of presence in lag source");
 		}
 		

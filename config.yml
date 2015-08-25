@@ -29,6 +29,10 @@ bot_detector:
   enable_warnings: true
   # Completely disables banning for testing and debugging purposes
   observation_mode: false
+  # Whether warnings to players should be given out, even if the tps is good
+  always_warn: true
+  # How often players should be warned if always_warn is enabled. Value of X here means players are warned every X runs of the BotDetector
+  reminder_interval: 10
   # Length of "default" long ban
   ban_length: 5400000
   # Max locations per player to store while measuring movement patterns
@@ -51,8 +55,10 @@ bot_detector:
   safe_distance: 128
   # The message to send to the player being banned.
   ban_message: §4You have been banned due to causing lag, in spite of a warning to leave the area.
-  # The warning message to send to a player found near lag sources.
+  # The warning message to send to a player found near lag sources, while the tick is low
   warning_message: §4[WARNING] You are in a region with a high concentration of lag sources. Please immediately depart the area (leave render distance) or you will be temporarily banned.
+  # The warning message to sent to a player found near a lag source, while the tick is high, if always_warn is enabled
+  friendly_warning_message: §4[WARNING] You are in a region with a high concentration of lag sources. We would recommend to remove entities around you, you might get kicked when the tick drops.
   # The number of times to send a warning to a player who repeatedly logs off after a warning, before banning.
   warning_repeat: 3
   # The lenths of bans. As a player is banned more times, the ban length goes up. All is clear on server reset.

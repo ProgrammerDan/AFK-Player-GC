@@ -134,10 +134,16 @@ public class ConfigurationReader {
 		AFKPGC.debug("Safe distance: ",BotDetector.safeDistance); //unused but keeping
 		BotDetector.warningMessage = bd.getString("warning_message");
 		AFKPGC.debug("Warning message: ",BotDetector.warningMessage);
+		BotDetector.friendlyWarningMessage = bd.getString("friendly_warning_message");
+		AFKPGC.debug("Friendly warning message: ",BotDetector.friendlyWarningMessage);
+		BotDetector.reminderInterval = bd.getInt("reminder_interval");
+		AFKPGC.debug("Reminder interval: ",BotDetector.reminderInterval);
 		BotDetector.warningCount = bd.getInt("warning_repeat");
 		AFKPGC.debug("Warning repeat: ",BotDetector.warningCount);
 		BotDetector.banMessage = bd.getString("ban_message");
 		AFKPGC.debug("Ban message: ",BotDetector.banMessage);
+		BotDetector.alwaysWarn = bd.getBoolean("always_warn");
+		AFKPGC.debug("AlwaysWarn: ",BotDetector.alwaysWarn);
 		List<Long> banLengths = bd.getLongList("ban_lengths");
 		BotDetector.banLengths = banLengths;
 		AFKPGC.debug("Ban Lengths: ");
