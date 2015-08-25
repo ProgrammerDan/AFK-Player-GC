@@ -136,6 +136,8 @@ public class ConfigurationReader {
 		AFKPGC.debug("Warning message: ",BotDetector.warningMessage);
 		BotDetector.friendlyWarningMessage = bd.getString("friendly_warning_message");
 		AFKPGC.debug("Friendly warning message: ",BotDetector.friendlyWarningMessage);
+		BotDetector.reminderInterval = bd.getInt("reminder_interval");
+		AFKPGC.debug("Reminder interval: ",BotDetector.reminderInterval);
 		BotDetector.warningCount = bd.getInt("warning_repeat");
 		AFKPGC.debug("Warning repeat: ",BotDetector.warningCount);
 		BotDetector.banMessage = bd.getString("ban_message");

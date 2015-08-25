@@ -29,8 +29,10 @@ bot_detector:
   enable_warnings: true
   # Completely disables banning for testing and debugging purposes
   observation_mode: false
-  #Whether warnings to players should be given out, even if the tps is good
+  # Whether warnings to players should be given out, even if the tps is good
   always_warn: true
+  # How often players should be warned if always_warn is enabled. Value of X here means players are warned every X runs of the BotDetector
+  reminder_interval: 10
   # Length of "default" long ban
   ban_length: 5400000
   # Max locations per player to store while measuring movement patterns

@@ -47,6 +47,8 @@ public class BotDetector implements Runnable {
 	public static int amountOfChecksPerRun;
 	public static int maxKicksPerRun;//TODO
 	public static int safeDistance;
+	/** How often players should be warned, if alwaysWarn is enabled and the tick is good */
+	public static int reminderInterval;
 	/** Number of people scanned between suspects and reprieve list before kicks begin, as a function
 	  * of online players. */
 	public static float actionThreshold;
@@ -73,6 +75,8 @@ public class BotDetector implements Runnable {
 	HashMap<UUID, Integer> reprieve; // temp. cleared suspects
 
 	int goodRounds = 0;
+	
+	int reminderCounter=0;
 	
 	/**
 	 * Suspect is key, count of warnings before either ban or clear is value
@@ -120,6 +124,9 @@ public class BotDetector implements Runnable {
 	}
 
 	public synchronized void doDetector() {
+		if (currentTPS >= acceptableTPS && alwaysWarn) {
+			reminderCounter++;
+		}
 		if (topSuspects == null) {
 			topSuspects = new TreeMap<Long, Set<Suspect>>();
 		}
@@ -155,7 +162,10 @@ public class BotDetector implements Runnable {
 		currentTPS = TpsReader.getTPS();
 		AFKPGC.debug("Bot Detector Running, TPS is: ", currentTPS);
 		Map<UUID, LastActivity> lastActivities = LastActivity.lastActivities;
-		if (alwaysWarn || currentTPS < acceptableTPS) {
+		if (currentTPS < acceptableTPS || (alwaysWarn && reminderCounter == reminderInterval )) {
+			if (reminderCounter == reminderInterval) {
+				reminderCounter = 0;
+			}
 			goodRounds = 0;
 			int scanCount = 0;
 			HashSet<UUID> justScanned = new HashSet<UUID>();
